@@ -1,5 +1,4 @@
 const std = @import("std");
-const errs = @import("../../helpers/errors.zig");
 
 const page_allocator = std.heap.page_allocator;
 const Allocator = std.mem.Allocator;
@@ -10,7 +9,7 @@ const isDigit = std.ascii.isDigit;
 const isAlpha = std.ascii.isAlphabetic;
 const isAlphaNum = std.ascii.isAlphanumeric;
 
-const ParseHead = struct {
+pub const ParseHead = struct {
     source: []const u8,
     start: []const u8,
     original: []const u8,
@@ -22,12 +21,6 @@ const ParseHead = struct {
 };
 
 pub var parseHead: ParseHead = undefined;
-
-// pub fn getLine(line: usize) ![]const u8 {
-//     if (!parseHead) return error.UndefinedParseHead;
-//     if (line == 0) return error.LineNumZero;
-//     if (parseHead.original.len == 0) return error.EmptyOriginal;
-// }
 
 fn consume() ?u8 {
     if (isEnd()) return null;
@@ -90,6 +83,7 @@ fn handleIdent() tk.Token {
                 .line = start_loc.line,
                 .column = start_loc.column,
                 .end_col = parseHead.loc.column - 1,
+                .end_line = parseHead.loc.line,
             },
         };
     } else {
@@ -100,6 +94,7 @@ fn handleIdent() tk.Token {
                 .line = start_loc.line,
                 .column = start_loc.column,
                 .end_col = parseHead.loc.column - 1,
+                .end_line = parseHead.loc.line,
             },
         };
     }
@@ -124,6 +119,7 @@ fn handleNum() tk.Token {
                 .line = start_loc.line,
                 .column = start_loc.column,
                 .end_col = parseHead.loc.column - 1,
+                .end_line = parseHead.loc.line,
             },
         };
     } else {
@@ -135,6 +131,7 @@ fn handleNum() tk.Token {
                 .line = start_loc.line,
                 .column = start_loc.column,
                 .end_col = parseHead.loc.column - 1,
+                .end_line = parseHead.loc.line,
             },
         };
     }
@@ -151,16 +148,13 @@ fn handleString() !tk.Token {
         }
         _ = consume();
         if (isEnd()) {
-            errs.ScriptErr("Unterminated String", "An Unterminated string was found during lexing!", .{ .line = parseHead.loc.line, .col = parseHead.loc.column });
-            try errs.lineErr(parseHead.loc.line, parseHead.loc.column, 1);
+            std.debug.print("Unterminated string found\n", .{});
             std.process.exit(0);
         }
     }
 
     if (peek() != quote) {
-        // std.debug.print("Unterminated string\n", .{});
-        errs.ScriptErr("Unterminated String", "An Unterminated string was found during lexing!", .{ .line = parseHead.loc.line, .col = parseHead.loc.column });
-        try errs.lineErr(parseHead.loc.line, parseHead.loc.column, 1);
+        std.debug.print("Unterminated string found\n", .{});
         std.process.exit(0);
     } else {
         _ = consume();
@@ -172,6 +166,7 @@ fn handleString() !tk.Token {
                 .line = start_loc.line,
                 .column = start_loc.column,
                 .end_col = parseHead.loc.column - 1,
+                .end_line = parseHead.loc.line,
             },
         };
     }
@@ -195,6 +190,7 @@ fn handleDoublesOperator() ?tk.Token {
                         .line = start_loc.line,
                         .column = start_loc.column,
                         .end_col = parseHead.loc.column - 1,
+                        .end_line = parseHead.loc.line,
                     },
                 };
             } else return null;
@@ -216,9 +212,9 @@ pub fn startLexer() !std.ArrayListAligned(tk.Token, null) {
             while (peek()) |ct| {
                 switch (ct) {
                     '\n' => {
+                        _ = consume();
                         parseHead.loc.line += 1;
                         parseHead.loc.column = 0;
-                        _ = consume();
 
                         break;
                     },
@@ -269,6 +265,7 @@ pub fn startLexer() !std.ArrayListAligned(tk.Token, null) {
                     .line = parseHead.loc.line,
                     .column = parseHead.loc.column,
                     .end_col = parseHead.loc.column,
+                    .end_line = parseHead.loc.line,
                 },
             };
             _ = consume();
@@ -286,6 +283,7 @@ pub fn startLexer() !std.ArrayListAligned(tk.Token, null) {
                 .line = parseHead.loc.line,
                 .column = parseHead.loc.column,
                 .end_col = parseHead.loc.column,
+                .end_line = parseHead.loc.line,
             },
         });
 
@@ -300,6 +298,7 @@ pub fn startLexer() !std.ArrayListAligned(tk.Token, null) {
             .line = parseHead.loc.line,
             .column = parseHead.loc.column,
             .end_col = parseHead.loc.column,
+            .end_line = parseHead.loc.line,
         },
     });
 

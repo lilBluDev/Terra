@@ -287,8 +287,19 @@ pub fn TokenType2String(tkt: TokenType) []const u8 {
     }
 }
 
-pub const Token = struct { token_type: TokenType, value: []const u8, loc: struct {
+pub const Token = struct {
+    token_type: TokenType,
+    value: []const u8,
+    loc: loc,
+
+    pub fn is(self: Token, t: TokenType) bool {
+        return self.token_type == t;
+    }
+};
+
+pub const loc = struct {
     line: usize,
     column: usize,
+    end_line: usize,
     end_col: usize,
-} };
+};
