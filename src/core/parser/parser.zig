@@ -42,6 +42,18 @@ pub const Parser = struct {
         return self.tks.items[self.pos].token_type;
     }
 
+    pub fn expectAndAdvance(self: *Parser, t: tk.TokenType) tk.Token {
+        self.expectError(t);
+        return self.advance();
+    }
+
+    pub fn expectError(self: *Parser, t: tk.TokenType) void {
+        if (self.currentTokenType() != t) {
+            std.debug.print("Expected {s} but got {s}\n", .{ tk.TokenType2String(t), tk.TokenType2String(self.currentTokenType()) });
+            std.process.exit(0);
+        }
+    }
+
     pub fn parse(self: *Parser) !*ast.Node {
         const prgm = self.mkNode(ast.Node{
             .Program = .{
@@ -56,6 +68,31 @@ pub const Parser = struct {
         }
 
         return prgm;
+    }
+
+    pub fn getLoc(self: *Parser, n: *ast.Node) tk.loc {
+        _ = self;
+        switch (n.*) {
+            .Program => |e| return e.loc,
+
+            // Stmt
+
+            // Expr
+            .BinarayExpr => |e| return e.loc,
+            .Literal => |e| return e.loc,
+            .Identifier => |e| return e.loc,
+            .PrefixExpr => |e| return e.loc,
+            .InfixExpr => |e| return e.loc,
+
+            // Types
+            .Symbol => |e| return e.loc,
+            .MultiSymbol => |e| return e.loc,
+            .ArraySymbol => |e| return e.loc,
+
+            else => {
+                return tk.loc{ .line = 0, .column = 0, .end_col = 0, .end_line = 0 };
+            },
+        }
     }
 
     pub fn combineLoc(self: *Parser, start: tk.loc, end: tk.loc) tk.loc {

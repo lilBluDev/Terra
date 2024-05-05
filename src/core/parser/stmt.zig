@@ -10,17 +10,11 @@ pub fn parseStmt(p: *Parser.Parser) !*ast.Node {
     if (lus.stmt_lu.get(p.currentTokenType())) |handler| {
         return try handler(p);
     }
-
     return parseExprStmt(p);
 }
 
 pub fn parseExprStmt(p: *Parser.Parser) !*ast.Node {
     const expr = try exprs.parseExpr(p, .default);
-
-    if (p.currentTokenType() != tk.TokenType.Semicolon) {
-        std.debug.print("Expected ';' but got {}\n", .{p.currentTokenType()});
-        std.process.exit(0);
-    } else _ = p.advance();
-
+    _ = p.expectAndAdvance(tk.TokenType.Semicolon);
     return expr;
 }

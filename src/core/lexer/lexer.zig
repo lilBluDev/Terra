@@ -182,7 +182,6 @@ fn handleDoublesOperator() ?tk.Token {
             if (tk.double_opreator_lu.get(&dChar)) |it| {
                 _ = consume();
                 _ = consume();
-                // parseHead.pos += 2;
                 return tk.Token{
                     .token_type = it,
                     .value = &dChar,
@@ -220,7 +219,6 @@ pub fn startLexer() !std.ArrayListAligned(tk.Token, null) {
                     },
 
                     ' ', '\r', '\t' => {
-                        // parseHead.loc.column += 1;
                         _ = consume();
 
                         break;

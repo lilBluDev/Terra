@@ -10,16 +10,18 @@ pub const BasicValueTypes = enum {
 
 pub const Node = union(enum) {
     // Misc
+    ProjectTree: struct {
+        tag: []const u8,
+        body: NodesBlock,
+        libs: NodesBlock,
+    },
+
     Program: struct {
         body: NodesBlock,
         loc: tk.loc,
     },
 
     // Statements
-    ExprStmts: struct {
-        expr: *Node,
-        loc: tk.loc,
-    },
 
     // Expressions
     Identifier: struct {
@@ -29,6 +31,22 @@ pub const Node = union(enum) {
     Literal: struct {
         value: []const u8,
         type: BasicValueTypes,
+        loc: tk.loc,
+    },
+    BinarayExpr: struct {
+        op: []const u8,
+        left: *Node,
+        right: *Node,
+        loc: tk.loc,
+    },
+    PrefixExpr: struct {
+        op: []const u8,
+        right: *Node,
+        loc: tk.loc,
+    },
+    InfixExpr: struct {
+        op: []const u8,
+        left: *Node,
         loc: tk.loc,
     },
 
@@ -57,9 +75,29 @@ pub const Node = union(enum) {
 
     pub fn deinit(self: *const Node, aloc: std.mem.Allocator) void {
         switch (self.*) {
+            // Misc
+            .ProjectTree => |p| {
+                p.body.deinit(aloc);
+                p.libs.deinit(aloc);
+            },
             .Program => |p| {
                 p.body.deinit(aloc);
             },
+
+            // Statements
+
+            // Expressions
+            .BinarayExpr => |p| {
+                p.left.deinit(aloc);
+                p.right.deinit(aloc);
+            },
+            .PrefixExpr => |p| {
+                p.right.deinit(aloc);
+            },
+            .InfixExpr => |p| {
+                p.left.deinit(aloc);
+            },
+
             else => {},
         }
         aloc.destroy(self);

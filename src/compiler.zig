@@ -22,6 +22,6 @@ pub const TerraC = struct {
         defer prgm.deinit(self.aloc);
 
         // std.debug.print("Token: {any}\n", .{token.items});
-        std.debug.print("{any}\n", .{prgm.Program.body.items.items});
+        std.debug.print("{any}\n", .{prgm.Program.body.items.items[0]});
     }
 };

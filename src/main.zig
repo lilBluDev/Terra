@@ -9,5 +9,5 @@ pub fn main() !void {
 
     const terraC = comp.TerraC.init(aloc);
     // defer terraC.deinit();
-    try terraC.parseSingle("10;");
+    try terraC.parseSingle("10 + 10 * 5;");
 }

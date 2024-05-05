@@ -47,4 +47,10 @@ pub fn loadLUs() void {
     infix(.StringLit, expr.parsePrimary);
     infix(.FloatLit, expr.parsePrimary);
     infix(.NumberLit, expr.parsePrimary);
+
+    atomic(.Plus, .addative, expr.parseBinaryExpr);
+    atomic(.Minus, .addative, expr.parseBinaryExpr);
+    atomic(.Star, .multiplicative, expr.parseBinaryExpr);
+    atomic(.Slash, .multiplicative, expr.parseBinaryExpr);
+    atomic(.Percent, .multiplicative, expr.parseBinaryExpr);
 }
