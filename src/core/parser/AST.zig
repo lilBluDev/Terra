@@ -22,8 +22,16 @@ pub const Node = union(enum) {
     },
 
     // Statements
+    VarDecl: struct {
+        name: []const u8,
+        isConst: bool,
+        type: *Node,
+        value: *Node,
+        loc: tk.loc,
+    },
 
     // Expressions
+    Null: struct {},
     Identifier: struct {
         name: []const u8,
         loc: tk.loc,
@@ -79,8 +87,10 @@ pub const Node = union(enum) {
             .ProjectTree => return try std.fmt.allocPrint(aloc, "< ProjectTree >", .{}),
 
             // Statements
+            .VarDecl => |p| return try std.fmt.allocPrint(aloc, "< VarDecl: {s}> ({})", .{ p.name, p.isConst }),
 
             // Expressions
+            .Null => return try std.fmt.allocPrint(aloc, "< Null >", .{}),
             .Identifier => |p| return try std.fmt.allocPrint(aloc, "< Identifier: {s} >", .{p.name}),
             .Literal => |p| return try std.fmt.allocPrint(aloc, "< Literal: {s} > ({s})", .{ p.value, @tagName(p.type) }),
             .BinarayExpr => |p| return try std.fmt.allocPrint(aloc, "< BinarayExpr: {s} >", .{@tagName(p.op)}),
@@ -96,6 +106,13 @@ pub const Node = union(enum) {
         }
     }
 
+    pub fn isNull(self: *const Node) bool {
+        switch (self.*) {
+            .Null => return true,
+            else => return false,
+        }
+    }
+
     pub fn deinit(self: *const Node, aloc: std.mem.Allocator) void {
         switch (self.*) {
             // Misc
@@ -108,6 +125,10 @@ pub const Node = union(enum) {
             },
 
             // Statements
+            .VarDecl => |p| {
+                p.type.deinit(aloc);
+                p.value.deinit(aloc);
+            },
 
             // Expressions
             .BinarayExpr => |p| {

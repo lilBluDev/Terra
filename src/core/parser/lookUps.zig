@@ -3,6 +3,7 @@ const tk = @import("../lexer/tokens.zig");
 const Parser = @import("./parser.zig");
 const AST = @import("./AST.zig");
 const expr = @import("./expr.zig");
+const stmts = @import("./stmt.zig");
 
 pub const binding_power = enum(u4) {
     default,
@@ -60,4 +61,7 @@ pub fn loadLUs() void {
     atomic(.Star, .multiplicative, expr.parseBinaryExpr);
     atomic(.Slash, .multiplicative, expr.parseBinaryExpr);
     atomic(.Percent, .multiplicative, expr.parseBinaryExpr);
+
+    stmt(.Var, stmts.parseVarDeclStmt);
+    stmt(.Const, stmts.parseVarDeclStmt);
 }

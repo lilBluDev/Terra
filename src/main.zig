@@ -12,5 +12,5 @@ pub fn main() !void {
 
     const terraC = comp.TerraC.init(aloc);
     // defer terraC.deinit();
-    try terraC.parseSingle("");
+    try terraC.parseSingle("const pi := 3.141;\nvar celcius: float = 10;");
 }

@@ -29,8 +29,17 @@ pub fn VisualizeNode(n: *ast.Node, aloc: std.mem.Allocator, tier: usize) !void {
         },
 
         // Statements
+        .VarDecl => |p| {
+            std.debug.print("{s}\n", .{try n.fmt(aloc)});
+            try VisualizeNode(@as(*ast.Node, p.type), aloc, tier + 1);
+            try VisualizeNode(@as(*ast.Node, p.value), aloc, tier + 1);
+        },
 
         // Expressions
+        .Null => |p| {
+            _ = p;
+            std.debug.print("{s}\n", .{try n.fmt(aloc)});
+        },
         .Identifier => |p| {
             _ = p;
             std.debug.print("{s}\n", .{try n.fmt(aloc)});

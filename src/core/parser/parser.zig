@@ -21,6 +21,12 @@ pub const Parser = struct {
         return n;
     }
 
+    pub fn mkNull(self: *Parser) *ast.Node {
+        const n = self.aloc.create(ast.Node) catch unreachable;
+        n.* = ast.Node{ .Null = .{} };
+        return n;
+    }
+
     pub fn advance(self: *Parser) tk.Token {
         const tkn = self.tks.items[self.pos];
         self.pos += 1;
@@ -77,6 +83,7 @@ pub const Parser = struct {
             .Program => |e| return e.loc,
 
             // Stmt
+            .VarDecl => |e| return e.loc,
 
             // Expr
             .BinarayExpr => |e| return e.loc,
