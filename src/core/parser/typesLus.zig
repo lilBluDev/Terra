@@ -62,7 +62,6 @@ fn parseSymbol(p: *Parser.Parser, bp: maps.binding_power) !*ast.Node {
 fn parseMultiSymbol(p: *Parser.Parser, bp: maps.binding_power) !*ast.Node {
     const prev = p.expectAndAdvance(.LeftParen);
     var arr = std.ArrayListAligned(*ast.Node, null).init(p.aloc);
-    defer arr.deinit();
 
     while (p.currentTokenType() != .RightParen and p.currentTokenType() != .EOF) {
         const sym = try parseType(p, bp);

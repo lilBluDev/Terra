@@ -1,5 +1,6 @@
 const std = @import("std");
 const comp = @import("compiler.zig");
+const fsH = @import("./core/helper/fsHelper.zig");
 
 pub fn main() !void {
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
@@ -11,6 +12,12 @@ pub fn main() !void {
     std.debug.print("{s}\n", .{args});
 
     const terraC = comp.TerraC.init(aloc);
+
+    std.debug.print("\u{250C} \n", .{});
+
+    const contents = try fsH.getFileContents(aloc, try std.fs.cwd().openFile("main.tr", .{}));
+
     // defer terraC.deinit();
-    try terraC.parseSingle("const pi := 3.141;\nvar celcius: float = 10;");
+    // try terraC.parseSingle("const pi := 3.141;\nvar celcius: float = 10;");
+    try terraC.parseSingle(contents);
 }

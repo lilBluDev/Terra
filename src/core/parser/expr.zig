@@ -31,11 +31,23 @@ pub fn parseBinaryExpr(p: *Parser.Parser, left: *ast.Node, bp: lus.binding_power
     const op = p.advance().token_type;
     const right = try parseExpr(p, bp);
 
-    return p.mkNode(ast.Node{ .BinarayExpr = .{
+    return p.mkNode(ast.Node{ .BinaryExpr = .{
         .left = left,
         .op = op,
         .right = right,
         .loc = p.combineLoc(p.getLoc(left), p.getLoc(right)),
+    } });
+}
+
+pub fn assignmentExpr(p: *Parser.Parser, left: *ast.Node, bp: lus.binding_power) !*ast.Node {
+    _ = bp;
+    _ = p.advance();
+    const rhs = try parseExpr(p, .assignment);
+
+    return p.mkNode(ast.Node{ .AssignmentExpr = .{
+        .lhs = left,
+        .rhs = rhs,
+        .loc = p.combineLoc(p.getLoc(left), p.prev().loc),
     } });
 }
 

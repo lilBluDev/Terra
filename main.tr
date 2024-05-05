@@ -1,0 +1,15 @@
+fn add(a: int, b: int) int {
+    a+b;
+}
+
+fn main(args: [](str, int, bool)) void {
+    const pi: float = 3.141;
+    var celcius := 24;
+    const calc := 2132 + 213 / 12.2 * 3;
+
+    celcius = 200;
+
+    fn add(a: int, b: int) int {
+        a+b;
+    }
+}

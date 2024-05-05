@@ -53,6 +53,8 @@ pub fn loadLUs() void {
     infix(.Minus, expr.parsePrefixExpr);
     infix(.Exclamation, expr.parsePrefixExpr);
 
+    atomic(.Equals, .assignment, expr.assignmentExpr);
+
     atomic(.PlusPlus, .logical, expr.parsePostfixExpr);
     atomic(.MinusMinus, .logical, expr.parsePostfixExpr);
 
@@ -64,4 +66,5 @@ pub fn loadLUs() void {
 
     stmt(.Var, stmts.parseVarDeclStmt);
     stmt(.Const, stmts.parseVarDeclStmt);
+    stmt(.Fn, stmts.parseFuncDeclStmt);
 }

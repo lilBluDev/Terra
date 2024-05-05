@@ -77,16 +77,33 @@ pub const Parser = struct {
         return prgm;
     }
 
+    pub fn parseBlock(self: *Parser) !*ast.Node {
+        const start = self.expectAndAdvance(.LeftBrace);
+        var body = std.ArrayListAligned(*ast.Node, null).init(self.aloc);
+        while (!self.currentToken().is(.RightBrace) and !self.currentToken().is(.EOF)) {
+            const n = try stmt.parseStmt(self);
+            try body.append(n);
+        }
+        _ = self.expectAndAdvance(.RightBrace);
+
+        return self.mkNode(ast.Node{ .Block = .{
+            .body = ast.Node.NodesBlock{ .items = body },
+            .loc = self.combineLoc(start.loc, self.prev().loc),
+        } });
+    }
+
     pub fn getLoc(self: *Parser, n: *ast.Node) tk.loc {
         _ = self;
         switch (n.*) {
             .Program => |e| return e.loc,
+            .Block => |e| return e.loc,
 
             // Stmt
             .VarDecl => |e| return e.loc,
+            .FuncDecl => |e| return e.loc,
 
             // Expr
-            .BinarayExpr => |e| return e.loc,
+            .BinaryExpr => |e| return e.loc,
             .Literal => |e| return e.loc,
             .Identifier => |e| return e.loc,
             .PrefixExpr => |e| return e.loc,

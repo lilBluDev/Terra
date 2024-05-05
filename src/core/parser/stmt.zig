@@ -34,6 +34,9 @@ pub fn parseVarDeclStmt(p: *Parser.Parser) !*ast.Node {
     if (!ty.isNull() and p.currentToken().is(.Walrus)) {
         std.debug.print("a walrus assignment should not need to specify the type!", .{});
         std.process.exit(0);
+    } else if (ty.isNull() and p.currentToken().is(.Equals)) {
+        std.debug.print("a normal assignment should need to specify the type!", .{});
+        std.process.exit(0);
     }
 
     var value: *ast.Node = p.mkNull();
@@ -55,5 +58,39 @@ pub fn parseVarDeclStmt(p: *Parser.Parser) !*ast.Node {
         .type = ty,
         .value = value,
         .loc = p.combineLoc(op.loc, p.prev().loc),
+    } });
+}
+
+pub fn parseFuncDeclStmt(p: *Parser.Parser) !*ast.Node {
+    const start = p.advance();
+    const name = p.expectAndAdvance(.Identifier);
+    var params = std.ArrayListAligned(*ast.Node, null).init(p.aloc);
+    _ = p.expectAndAdvance(.LeftParen);
+    while (!p.currentToken().is(.RightParen) and !p.currentToken().is(.EOF)) {
+        const key = p.expectAndAdvance(.Identifier).value;
+        _ = p.expectAndAdvance(.Colon);
+        const ty = try tlus.parseType(p, .default);
+        try params.append(p.mkNode(ast.Node{
+            .Param = .{ .key = key, .value = ty },
+        }));
+        if (!p.currentToken().is(.RightParen) and !p.currentToken().is(.EOF)) {
+            _ = p.expectAndAdvance(.Comma);
+        }
+    }
+    _ = p.expectAndAdvance(.RightParen);
+
+    var outType = p.mkNull();
+    if (!p.currentToken().is(.LeftBrace)) {
+        outType = try tlus.parseType(p, .default);
+    }
+
+    const block = try p.parseBlock();
+
+    return p.mkNode(ast.Node{ .FuncDecl = .{
+        .name = name.value,
+        .params = ast.Node.NodesBlock{ .items = params },
+        .outType = outType,
+        .body = block,
+        .loc = p.combineLoc(start.loc, p.prev().loc),
     } });
 }

@@ -11,14 +11,20 @@ pub const BasicValueTypes = enum {
 pub const Node = union(enum) {
     // Misc
     ProjectTree: struct {
-        tag: []const u8,
         body: NodesBlock,
         libs: NodesBlock,
     },
-
     Program: struct {
         body: NodesBlock,
         loc: tk.loc,
+    },
+    Block: struct {
+        body: NodesBlock,
+        loc: tk.loc,
+    },
+    Param: struct {
+        key: []const u8,
+        value: *Node,
     },
 
     // Statements
@@ -27,6 +33,13 @@ pub const Node = union(enum) {
         isConst: bool,
         type: *Node,
         value: *Node,
+        loc: tk.loc,
+    },
+    FuncDecl: struct {
+        name: []const u8,
+        params: NodesBlock,
+        outType: *Node,
+        body: *Node,
         loc: tk.loc,
     },
 
@@ -41,7 +54,12 @@ pub const Node = union(enum) {
         type: BasicValueTypes,
         loc: tk.loc,
     },
-    BinarayExpr: struct {
+    AssignmentExpr: struct {
+        lhs: *Node,
+        rhs: *Node,
+        loc: tk.loc,
+    },
+    BinaryExpr: struct {
         op: tk.TokenType,
         left: *Node,
         right: *Node,
@@ -83,26 +101,24 @@ pub const Node = union(enum) {
 
     pub fn fmt(self: *const Node, aloc: std.mem.Allocator) ![]u8 {
         switch (self.*) {
-            .Program => return try std.fmt.allocPrint(aloc, "< Program >", .{}),
-            .ProjectTree => return try std.fmt.allocPrint(aloc, "< ProjectTree >", .{}),
+            .Param => |p| return try std.fmt.allocPrint(aloc, "< Param: {s}>", .{p.key}),
 
             // Statements
             .VarDecl => |p| return try std.fmt.allocPrint(aloc, "< VarDecl: {s}> ({})", .{ p.name, p.isConst }),
+            .FuncDecl => |p| return try std.fmt.allocPrint(aloc, "< FuncDecl: {s}>", .{p.name}),
 
             // Expressions
-            .Null => return try std.fmt.allocPrint(aloc, "< Null >", .{}),
             .Identifier => |p| return try std.fmt.allocPrint(aloc, "< Identifier: {s} >", .{p.name}),
             .Literal => |p| return try std.fmt.allocPrint(aloc, "< Literal: {s} > ({s})", .{ p.value, @tagName(p.type) }),
-            .BinarayExpr => |p| return try std.fmt.allocPrint(aloc, "< BinarayExpr: {s} >", .{@tagName(p.op)}),
+            .BinaryExpr => |p| return try std.fmt.allocPrint(aloc, "< BinarayExpr: {s} >", .{@tagName(p.op)}),
             .PrefixExpr => |p| return try std.fmt.allocPrint(aloc, "< PrefixExpr: {s} >", .{@tagName(p.op)}),
             .PostfixExpr => |p| return try std.fmt.allocPrint(aloc, "< PostfixExpr: {s} >", .{@tagName(p.op)}),
 
             // Types
             .Symbol => |p| return try std.fmt.allocPrint(aloc, "< Symbol: {s} >", .{p.name}),
-            .MultiSymbol => return try std.fmt.allocPrint(aloc, "< MultiSymbol >", .{}),
             .ArraySymbol => |p| return try std.fmt.allocPrint(aloc, "< ArraySymbol ({}) >", .{p.size}),
 
-            // else => return try std.fmt.allocPrint(aloc, "< N/A >", .{}),
+            else => |p| return try std.fmt.allocPrint(aloc, "< {s} >", .{@tagName(p)}),
         }
     }
 
@@ -120,8 +136,14 @@ pub const Node = union(enum) {
                 p.body.deinit(aloc);
                 p.libs.deinit(aloc);
             },
+            .Block => |p| {
+                p.body.deinit(aloc);
+            },
             .Program => |p| {
                 p.body.deinit(aloc);
+            },
+            .Param => |p| {
+                p.value.deinit(aloc);
             },
 
             // Statements
@@ -129,9 +151,18 @@ pub const Node = union(enum) {
                 p.type.deinit(aloc);
                 p.value.deinit(aloc);
             },
+            .FuncDecl => |p| {
+                p.body.deinit(aloc);
+                p.params.deinit(aloc);
+                p.outType.deinit(aloc);
+            },
 
             // Expressions
-            .BinarayExpr => |p| {
+            .AssignmentExpr => |p| {
+                p.lhs.deinit(aloc);
+                p.rhs.deinit(aloc);
+            },
+            .BinaryExpr => |p| {
                 p.left.deinit(aloc);
                 p.right.deinit(aloc);
             },
