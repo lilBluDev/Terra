@@ -39,6 +39,28 @@ pub fn parseBinaryExpr(p: *Parser.Parser, left: *ast.Node, bp: lus.binding_power
     } });
 }
 
+pub fn parsePostfixExpr(p: *Parser.Parser, left: *ast.Node, bp: lus.binding_power) !*ast.Node {
+    _ = bp;
+    const op = p.advance();
+
+    return p.mkNode(ast.Node{ .PostfixExpr = .{
+        .op = op.token_type,
+        .left = left,
+        .loc = p.combineLoc(p.getLoc(left), op.loc),
+    } });
+}
+
+pub fn parsePrefixExpr(p: *Parser.Parser, bp: lus.binding_power) !*ast.Node {
+    const op = p.advance();
+    const right = try parseExpr(p, bp);
+
+    return p.mkNode(ast.Node{ .PrefixExpr = .{
+        .op = op.token_type,
+        .right = right,
+        .loc = p.combineLoc(op.loc, p.getLoc(right)),
+    } });
+}
+
 pub fn parsePrimary(p: *Parser.Parser, bp: lus.binding_power) !*ast.Node {
     _ = bp;
     const t = p.advance();

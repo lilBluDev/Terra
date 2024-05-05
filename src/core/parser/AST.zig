@@ -40,12 +40,12 @@ pub const Node = union(enum) {
         loc: tk.loc,
     },
     PrefixExpr: struct {
-        op: []const u8,
+        op: tk.TokenType,
         right: *Node,
         loc: tk.loc,
     },
-    InfixExpr: struct {
-        op: []const u8,
+    PostfixExpr: struct {
+        op: tk.TokenType,
         left: *Node,
         loc: tk.loc,
     },
@@ -56,7 +56,7 @@ pub const Node = union(enum) {
         loc: tk.loc,
     },
     MultiSymbol: struct {
-        name: [][]const u8,
+        syms: NodesBlock,
         loc: tk.loc,
     },
     ArraySymbol: struct {
@@ -84,8 +84,8 @@ pub const Node = union(enum) {
             .Identifier => |p| return try std.fmt.allocPrint(aloc, "< Identifier: {s} >", .{p.name}),
             .Literal => |p| return try std.fmt.allocPrint(aloc, "< Literal: {s} > ({s})", .{ p.value, @tagName(p.type) }),
             .BinarayExpr => |p| return try std.fmt.allocPrint(aloc, "< BinarayExpr: {s} >", .{@tagName(p.op)}),
-            .PrefixExpr => |p| return try std.fmt.allocPrint(aloc, "< PrefixExpr: {s} >", .{p.op}),
-            .InfixExpr => |p| return try std.fmt.allocPrint(aloc, "< InfixExpr: {s} >", .{p.op}),
+            .PrefixExpr => |p| return try std.fmt.allocPrint(aloc, "< PrefixExpr: {s} >", .{@tagName(p.op)}),
+            .PostfixExpr => |p| return try std.fmt.allocPrint(aloc, "< PostfixExpr: {s} >", .{@tagName(p.op)}),
 
             // Types
             .Symbol => |p| return try std.fmt.allocPrint(aloc, "< Symbol: {s} >", .{p.name}),
@@ -117,8 +117,13 @@ pub const Node = union(enum) {
             .PrefixExpr => |p| {
                 p.right.deinit(aloc);
             },
-            .InfixExpr => |p| {
+            .PostfixExpr => |p| {
                 p.left.deinit(aloc);
+            },
+
+            // Types
+            .MultiSymbol => |p| {
+                p.syms.deinit(aloc);
             },
 
             else => {},

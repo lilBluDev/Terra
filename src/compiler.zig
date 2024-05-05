@@ -2,6 +2,7 @@ const std = @import("std");
 const lexer = @import("./core/lexer/lexer.zig");
 const parser = @import("./core/parser/parser.zig");
 const LUs = @import("./core/parser/lookUps.zig");
+const TLUs = @import("./core/parser/typesLus.zig");
 const ntv = @import("./core/helper/nodeTreeVisualizer.zig");
 
 pub const TerraC = struct {
@@ -9,6 +10,7 @@ pub const TerraC = struct {
 
     pub fn init(aloc: std.mem.Allocator) TerraC {
         LUs.loadLUs();
+        TLUs.loadLUs();
         return TerraC{
             .aloc = aloc,
         };

@@ -17,14 +17,14 @@ pub fn VisualizeNode(n: *ast.Node, aloc: std.mem.Allocator, tier: usize) !void {
             std.debug.print("{s}\n", .{try n.fmt(aloc)});
             for (p.body.items.items) |s| {
                 try VisualizeNode(s, aloc, tier + 1);
-                std.debug.print("\n", .{});
+                // std.debug.print("\n", .{});
             }
         },
         .ProjectTree => |p| {
             std.debug.print("{s}\n", .{try n.fmt(aloc)});
             for (p.body.items.items) |s| {
                 try VisualizeNode(s, aloc, tier + 1);
-                std.debug.print("\n", .{});
+                // std.debug.print("\n", .{});
             }
         },
 
@@ -48,7 +48,7 @@ pub fn VisualizeNode(n: *ast.Node, aloc: std.mem.Allocator, tier: usize) !void {
             std.debug.print("{s}\n", .{try n.fmt(aloc)});
             try VisualizeNode(p.right, aloc, tier + 1);
         },
-        .InfixExpr => |p| {
+        .PostfixExpr => |p| {
             std.debug.print("{s}\n", .{try n.fmt(aloc)});
             try VisualizeNode(p.left, aloc, tier + 1);
         },

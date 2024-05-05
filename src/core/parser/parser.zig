@@ -83,14 +83,15 @@ pub const Parser = struct {
             .Literal => |e| return e.loc,
             .Identifier => |e| return e.loc,
             .PrefixExpr => |e| return e.loc,
-            .InfixExpr => |e| return e.loc,
+            .PostfixExpr => |e| return e.loc,
 
             // Types
             .Symbol => |e| return e.loc,
             .MultiSymbol => |e| return e.loc,
             .ArraySymbol => |e| return e.loc,
 
-            else => {
+            else => |p| {
+                std.debug.print("N/A {}\n", .{p});
                 return tk.loc{ .line = 0, .column = 0, .end_col = 0, .end_line = 0 };
             },
         }
