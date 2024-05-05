@@ -22,8 +22,9 @@ pub const Parser = struct {
     }
 
     pub fn advance(self: *Parser) tk.Token {
+        const tkn = self.tks.items[self.pos];
         self.pos += 1;
-        return self.currentToken();
+        return tkn;
     }
 
     pub fn prev(self: *Parser) tk.Token {

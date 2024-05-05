@@ -2,6 +2,7 @@ const std = @import("std");
 const lexer = @import("./core/lexer/lexer.zig");
 const parser = @import("./core/parser/parser.zig");
 const LUs = @import("./core/parser/lookUps.zig");
+const ntv = @import("./core/helper/nodeTreeVisualizer.zig");
 
 pub const TerraC = struct {
     aloc: std.mem.Allocator,
@@ -22,6 +23,7 @@ pub const TerraC = struct {
         defer prgm.deinit(self.aloc);
 
         // std.debug.print("Token: {any}\n", .{token.items});
-        std.debug.print("{any}\n", .{prgm.Program.body.items.items[0]});
+        try ntv.VisualizeNode(prgm, self.aloc, 0);
+        // std.debug.print("{any}\n", .{prgm.Program.body.items.items[0]});
     }
 };

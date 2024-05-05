@@ -34,7 +34,7 @@ pub const Node = union(enum) {
         loc: tk.loc,
     },
     BinarayExpr: struct {
-        op: []const u8,
+        op: tk.TokenType,
         left: *Node,
         right: *Node,
         loc: tk.loc,
@@ -72,6 +72,29 @@ pub const Node = union(enum) {
             for (self.items.items) |s| s.deinit(alloc);
         }
     };
+
+    pub fn fmt(self: *const Node, aloc: std.mem.Allocator) ![]u8 {
+        switch (self.*) {
+            .Program => return try std.fmt.allocPrint(aloc, "< Program >", .{}),
+            .ProjectTree => return try std.fmt.allocPrint(aloc, "< ProjectTree >", .{}),
+
+            // Statements
+
+            // Expressions
+            .Identifier => |p| return try std.fmt.allocPrint(aloc, "< Identifier: {s} >", .{p.name}),
+            .Literal => |p| return try std.fmt.allocPrint(aloc, "< Literal: {s} > ({s})", .{ p.value, @tagName(p.type) }),
+            .BinarayExpr => |p| return try std.fmt.allocPrint(aloc, "< BinarayExpr: {s} >", .{@tagName(p.op)}),
+            .PrefixExpr => |p| return try std.fmt.allocPrint(aloc, "< PrefixExpr: {s} >", .{p.op}),
+            .InfixExpr => |p| return try std.fmt.allocPrint(aloc, "< InfixExpr: {s} >", .{p.op}),
+
+            // Types
+            .Symbol => |p| return try std.fmt.allocPrint(aloc, "< Symbol: {s} >", .{p.name}),
+            .MultiSymbol => return try std.fmt.allocPrint(aloc, "< MultiSymbol >", .{}),
+            .ArraySymbol => |p| return try std.fmt.allocPrint(aloc, "< ArraySymbol ({}) >", .{p.size}),
+
+            // else => return try std.fmt.allocPrint(aloc, "< N/A >", .{}),
+        }
+    }
 
     pub fn deinit(self: *const Node, aloc: std.mem.Allocator) void {
         switch (self.*) {

@@ -28,12 +28,12 @@ pub fn parseExpr(p: *Parser.Parser, bp: lus.binding_power) !*ast.Node {
 }
 
 pub fn parseBinaryExpr(p: *Parser.Parser, left: *ast.Node, bp: lus.binding_power) !*ast.Node {
-    const op = p.advance();
+    const op = p.advance().token_type;
     const right = try parseExpr(p, bp);
 
     return p.mkNode(ast.Node{ .BinarayExpr = .{
         .left = left,
-        .op = op.value,
+        .op = op,
         .right = right,
         .loc = p.combineLoc(p.getLoc(left), p.getLoc(right)),
     } });
@@ -42,12 +42,13 @@ pub fn parseBinaryExpr(p: *Parser.Parser, left: *ast.Node, bp: lus.binding_power
 pub fn parsePrimary(p: *Parser.Parser, bp: lus.binding_power) !*ast.Node {
     _ = bp;
     const t = p.advance();
+    const val = t.value;
 
     switch (t.token_type) {
         .Identifier => {
             return p.mkNode(ast.Node{
                 .Identifier = .{
-                    .name = t.value,
+                    .name = val,
                     .loc = t.loc,
                 },
             });
@@ -55,7 +56,7 @@ pub fn parsePrimary(p: *Parser.Parser, bp: lus.binding_power) !*ast.Node {
         .NumberLit => {
             return p.mkNode(ast.Node{
                 .Literal = .{
-                    .value = t.value,
+                    .value = val,
                     .type = .Int,
                     .loc = t.loc,
                 },
@@ -64,7 +65,7 @@ pub fn parsePrimary(p: *Parser.Parser, bp: lus.binding_power) !*ast.Node {
         .FloatLit => {
             return p.mkNode(ast.Node{
                 .Literal = .{
-                    .value = t.value,
+                    .value = val,
                     .type = .Float,
                     .loc = t.loc,
                 },
@@ -73,20 +74,22 @@ pub fn parsePrimary(p: *Parser.Parser, bp: lus.binding_power) !*ast.Node {
         .StringLit => {
             return p.mkNode(ast.Node{
                 .Literal = .{
-                    .value = t.value,
+                    .value = val,
                     .type = .String,
                     .loc = t.loc,
                 },
             });
         },
         else => {
-            return p.mkNode(ast.Node{
-                .Literal = .{
-                    .value = t.value,
-                    .type = .String,
-                    .loc = t.loc,
-                },
-            });
+            // return p.mkNode(ast.Node{
+            //     .Literal = .{
+            //         .value = val,
+            //         .type = .String,
+            //         .loc = t.loc,
+            //     },
+            // });
+            std.debug.print("No handler for {}\n", .{t.token_type});
+            std.process.exit(0);
         },
     }
 }
