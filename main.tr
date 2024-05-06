@@ -1,15 +1,27 @@
-fn add(a: int, b: int) int {
-    a+b;
-}
+// wierd example lol
 
-fn main(args: [](str, int, bool)) void {
-    const pi: float = 3.141;
-    var celcius := 24;
-    const calc := 2132 + 213 / 12.2 * 3;
+if (true == false) {
+    if (true == false) {
+    
+    } elif (false) {
 
-    celcius = 200;
+    } else {
+        
+    }
+} elif (false) {
+    if (true == false) {
+    
+    } elif (false) {
 
-    fn add(a: int, b: int) int {
-        a+b;
+    } else {
+        
+    }
+} else {
+    if (true == false) {
+        
+    } elif (false) {
+
+    } else {
+        
     }
 }

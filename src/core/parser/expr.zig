@@ -105,6 +105,15 @@ pub fn parsePrimary(p: *Parser.Parser, bp: lus.binding_power) !*ast.Node {
                 },
             });
         },
+        .TrueKeyword, .FalseKeyword => {
+            return p.mkNode(ast.Node{
+                .Literal = .{
+                    .value = val,
+                    .type = .Bool,
+                    .loc = t.loc,
+                },
+            });
+        },
         .StringLit => {
             return p.mkNode(ast.Node{
                 .Literal = .{
@@ -126,4 +135,12 @@ pub fn parsePrimary(p: *Parser.Parser, bp: lus.binding_power) !*ast.Node {
             std.process.exit(0);
         },
     }
+}
+
+pub fn parseGroupings(p: *Parser.Parser, bp: lus.binding_power) !*ast.Node {
+    _ = bp;
+    _ = p.expectAndAdvance(.LeftParen);
+    const expr = try parseExpr(p, .default);
+    _ = p.expectAndAdvance(.RightParen);
+    return expr;
 }

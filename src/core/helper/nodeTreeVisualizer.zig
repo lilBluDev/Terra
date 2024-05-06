@@ -47,6 +47,12 @@ pub fn VisualizeNode(n: *ast.Node, aloc: std.mem.Allocator, tier: usize) !void {
             try VisualizeNode(p.outType, aloc, tier + 1);
             try VisualizeNode(p.body, aloc, tier + 1);
         },
+        .IfStmt => |p| {
+            std.debug.print("{s}\n", .{try n.fmt(aloc)});
+            try VisualizeNode(p.condition, aloc, tier + 1);
+            try VisualizeNode(p.body, aloc, tier + 1);
+            try VisualizeNode(p.alter, aloc, tier + 1);
+        },
 
         // Expressions
         .Null => |p| {

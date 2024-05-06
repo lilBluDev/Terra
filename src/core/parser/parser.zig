@@ -101,6 +101,7 @@ pub const Parser = struct {
             // Stmt
             .VarDecl => |e| return e.loc,
             .FuncDecl => |e| return e.loc,
+            .IfStmt => |e| return e.loc,
 
             // Expr
             .BinaryExpr => |e| return e.loc,

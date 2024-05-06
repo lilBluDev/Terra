@@ -62,6 +62,8 @@ pub const TokenType = enum {
     ExclamationEquals,
     PlusPlus,
     MinusMinus,
+    PipePipe,
+    AmpAmp,
     Walrus,
     Arrow,
 
@@ -78,6 +80,7 @@ pub const TokenType = enum {
     While,
     In,
     Is,
+    Or,
     And,
     Not,
     Import,
@@ -124,6 +127,8 @@ pub const str_to_roken_type_lu = std.ComptimeStringMap(TokenType, .{
     .{ "<", TokenType.LessThan },
     .{ "<=", TokenType.LessThanEquals },
     .{ "==", TokenType.EqualsEquals },
+    .{ "||", TokenType.PipePipe },
+    .{ "&&", TokenType.AmpAmp },
     .{ "!=", TokenType.ExclamationEquals },
     .{ "++", TokenType.PlusPlus },
     .{ "--", TokenType.MinusMinus },
@@ -141,6 +146,7 @@ pub const str_to_roken_type_lu = std.ComptimeStringMap(TokenType, .{
     .{ "while", TokenType.While },
     .{ "in", TokenType.In },
     .{ "is", TokenType.Is },
+    .{ "or", TokenType.OR },
     .{ "and", TokenType.And },
     .{ "not", TokenType.Not },
     .{ "import", TokenType.Import },
@@ -185,6 +191,8 @@ pub const double_opreator_lu = std.ComptimeStringMap(TokenType, .{
     .{ "^=", TokenType.CaretEquals },
     .{ ">", TokenType.GraterThan },
     .{ ">=", TokenType.GraterThanEquals },
+    .{ "||", TokenType.PipePipe },
+    .{ "&&", TokenType.AmpAmp },
     .{ "<", TokenType.LessThan },
     .{ "<=", TokenType.LessThanEquals },
     .{ "==", TokenType.EqualsEquals },
@@ -208,6 +216,7 @@ pub const reserved_lu = std.ComptimeStringMap(TokenType, .{
     .{ "while", TokenType.While },
     .{ "in", TokenType.In },
     .{ "is", TokenType.Is },
+    .{ "and", TokenType.Or },
     .{ "and", TokenType.And },
     .{ "not", TokenType.Not },
     .{ "import", TokenType.Import },
@@ -283,7 +292,7 @@ pub fn TokenType2String(tkt: TokenType) []const u8 {
         .NullKeyword => return "Null",
         .EOF => return "End OF File",
 
-        // else => return "...",
+        else => |t| return @tagName(t),
     }
 }
 

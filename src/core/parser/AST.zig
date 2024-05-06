@@ -42,6 +42,12 @@ pub const Node = union(enum) {
         body: *Node,
         loc: tk.loc,
     },
+    IfStmt: struct {
+        condition: *Node,
+        body: *Node,
+        alter: *Node,
+        loc: tk.loc,
+    },
 
     // Expressions
     Null: struct {},
@@ -155,6 +161,11 @@ pub const Node = union(enum) {
                 p.body.deinit(aloc);
                 p.params.deinit(aloc);
                 p.outType.deinit(aloc);
+            },
+            .IfStmt => |p| {
+                p.condition.deinit(aloc);
+                p.body.deinit(aloc);
+                p.alter.deinit(aloc);
             },
 
             // Expressions

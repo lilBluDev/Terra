@@ -48,6 +48,10 @@ pub fn loadLUs() void {
     infix(.StringLit, expr.parsePrimary);
     infix(.FloatLit, expr.parsePrimary);
     infix(.NumberLit, expr.parsePrimary);
+    infix(.TrueKeyword, expr.parsePrimary);
+    infix(.FalseKeyword, expr.parsePrimary);
+
+    infix(.LeftParen, expr.parseGroupings);
 
     infix(.Plus, expr.parsePrefixExpr);
     infix(.Minus, expr.parsePrefixExpr);
@@ -64,7 +68,19 @@ pub fn loadLUs() void {
     atomic(.Slash, .multiplicative, expr.parseBinaryExpr);
     atomic(.Percent, .multiplicative, expr.parseBinaryExpr);
 
+    atomic(.Or, .logical, expr.parseBinaryExpr);
+    atomic(.And, .logical, expr.parseBinaryExpr);
+    atomic(.PipePipe, .logical, expr.parseBinaryExpr);
+    atomic(.AmpAmp, .logical, expr.parseBinaryExpr);
+    atomic(.GraterThan, .logical, expr.parseBinaryExpr);
+    atomic(.GraterThanEquals, .logical, expr.parseBinaryExpr);
+    atomic(.EqualsEquals, .logical, expr.parseBinaryExpr);
+    atomic(.ExclamationEquals, .logical, expr.parseBinaryExpr);
+    atomic(.LessThan, .logical, expr.parseBinaryExpr);
+    atomic(.LessThanEquals, .logical, expr.parseBinaryExpr);
+
     stmt(.Var, stmts.parseVarDeclStmt);
     stmt(.Const, stmts.parseVarDeclStmt);
     stmt(.Fn, stmts.parseFuncDeclStmt);
+    stmt(.If, stmts.parseIfStmt);
 }

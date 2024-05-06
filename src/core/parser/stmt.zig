@@ -94,3 +94,29 @@ pub fn parseFuncDeclStmt(p: *Parser.Parser) !*ast.Node {
         .loc = p.combineLoc(start.loc, p.prev().loc),
     } });
 }
+
+pub fn parseIfStmt(p: *Parser.Parser) !*ast.Node {
+    const start = p.advance();
+    _ = p.expectAndAdvance(.LeftParen);
+    const condition = try exprs.parseExpr(p, .assignment);
+    _ = p.expectAndAdvance(.RightParen);
+
+    // TODO: ADD SCOPE CAPTURING
+
+    const body = try p.parseBlock();
+    var alter = p.mkNull();
+
+    if (p.currentToken().is(.Elif)) {
+        alter = try parseIfStmt(p);
+    } else if (p.currentToken().is(.Else)) {
+        _ = p.advance();
+        alter = try p.parseBlock();
+    }
+
+    return p.mkNode(ast.Node{ .IfStmt = .{
+        .condition = condition,
+        .body = body,
+        .alter = alter,
+        .loc = p.combineLoc(start.loc, p.prev().loc),
+    } });
+}
