@@ -1,27 +1,25 @@
-// wierd example lol
+struct Vec2 {
+    x: int,
+    y: int
+}
 
-if (true == false) {
-    if (true == false) {
-    
-    } elif (false) {
+enum State {
+    Idle,
+    InBattle,
+    Dead
+}
 
-    } else {
-        
+struct Player {
+    tag: str,
+    hp: int,
+    pos: Vec2,
+    state: State,
+
+    pub fn isDead(self: Player) bool {
+        self.state == State.Dead;
     }
-} elif (false) {
-    if (true == false) {
-    
-    } elif (false) {
 
-    } else {
-        
-    }
-} else {
-    if (true == false) {
-        
-    } elif (false) {
-
-    } else {
-        
+    pub fn getLoc(self: Player) Vec2 {
+        self.pos;
     }
 }

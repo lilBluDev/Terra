@@ -35,7 +35,7 @@ pub fn parseBinaryExpr(p: *Parser.Parser, left: *ast.Node, bp: lus.binding_power
         .left = left,
         .op = op,
         .right = right,
-        .loc = p.combineLoc(p.getLoc(left), p.getLoc(right)),
+        .loc = p.combineLoc(left.getLoc(), right.getLoc()),
     } });
 }
 
@@ -47,7 +47,7 @@ pub fn assignmentExpr(p: *Parser.Parser, left: *ast.Node, bp: lus.binding_power)
     return p.mkNode(ast.Node{ .AssignmentExpr = .{
         .lhs = left,
         .rhs = rhs,
-        .loc = p.combineLoc(p.getLoc(left), p.prev().loc),
+        .loc = p.combineLoc(left.getLoc(), p.prev().loc),
     } });
 }
 
@@ -58,7 +58,7 @@ pub fn parsePostfixExpr(p: *Parser.Parser, left: *ast.Node, bp: lus.binding_powe
     return p.mkNode(ast.Node{ .PostfixExpr = .{
         .op = op.token_type,
         .left = left,
-        .loc = p.combineLoc(p.getLoc(left), op.loc),
+        .loc = p.combineLoc(left.getLoc(), op.loc),
     } });
 }
 
@@ -69,7 +69,7 @@ pub fn parsePrefixExpr(p: *Parser.Parser, bp: lus.binding_power) !*ast.Node {
     return p.mkNode(ast.Node{ .PrefixExpr = .{
         .op = op.token_type,
         .right = right,
-        .loc = p.combineLoc(op.loc, p.getLoc(right)),
+        .loc = p.combineLoc(op.loc, right.getLoc()),
     } });
 }
 
@@ -123,6 +123,13 @@ pub fn parsePrimary(p: *Parser.Parser, bp: lus.binding_power) !*ast.Node {
                 },
             });
         },
+        .NullKeyword => {
+            return p.mkNode(ast.Node{ .Literal = .{
+                .value = val,
+                .type = .Null,
+                .loc = t.loc,
+            } });
+        },
         else => {
             // return p.mkNode(ast.Node{
             //     .Literal = .{
@@ -143,4 +150,42 @@ pub fn parseGroupings(p: *Parser.Parser, bp: lus.binding_power) !*ast.Node {
     const expr = try parseExpr(p, .default);
     _ = p.expectAndAdvance(.RightParen);
     return expr;
+}
+
+pub fn parseMemberExpr(p: *Parser.Parser, left: *ast.Node, bp: lus.binding_power) !*ast.Node {
+    const computed = p.advance().is(.LeftBracket);
+
+    if (computed) {
+        const rhs = try parseExpr(p, bp);
+        _ = p.expectAndAdvance(.RightBracket);
+        return p.mkNode(ast.Node{ .ComputedExpr = .{
+            .member = left,
+            .property = rhs,
+            .loc = p.combineLoc(left.getLoc(), rhs.getLoc()),
+        } });
+    }
+
+    return p.mkNode(ast.Node{ .MemberExpr = .{
+        .member = left,
+        .property = p.expectAndAdvance(.Identifier).value,
+        .loc = p.combineLoc(left.getLoc(), p.prev().loc),
+    } });
+}
+
+pub fn parseCallExpr(p: *Parser.Parser, left: *ast.Node, bp: lus.binding_power) !*ast.Node {
+    _ = p.advance();
+    _ = bp;
+    var args = std.ArrayListAligned(*ast.Node, null).init(p.aloc);
+    while (!p.currentToken().is(.RightParen) and !p.currentToken().is(.EOF)) {
+        const arg = try parseExpr(p, .assignment);
+        try args.append(arg);
+        if (!p.currentToken().is(.RightParen) and !p.currentToken().is(.EOF)) _ = p.expectAndAdvance(.Comma);
+    }
+    _ = p.expectAndAdvance(.RightParen);
+
+    return p.mkNode(ast.Node{ .CallExpr = .{
+        .callee = left,
+        .args = ast.Node.NodesBlock{ .items = args },
+        .loc = p.combineLoc(left.getLoc(), p.prev().loc),
+    } });
 }

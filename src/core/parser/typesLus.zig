@@ -74,7 +74,7 @@ fn parseMultiSymbol(p: *Parser.Parser, bp: maps.binding_power) !*ast.Node {
 
     return p.mkNode(ast.Node{ .MultiSymbol = .{
         .syms = ast.Node.NodesBlock{ .items = arr },
-        .loc = p.combineLoc(prev.loc, p.getLoc(arr.items[arr.items.len - 1])),
+        .loc = p.combineLoc(prev.loc, arr.items[arr.items.len - 1].getLoc()),
     } });
 }
 
@@ -86,7 +86,7 @@ fn parseArraySymbol(p: *Parser.Parser, bp: maps.binding_power) !*ast.Node {
 
     return p.mkNode(ast.Node{ .ArraySymbol = .{
         .sym = sym,
-        .loc = p.combineLoc(s.loc, p.getLoc(sym)),
+        .loc = p.combineLoc(s.loc, sym.getLoc()),
         .size = 0,
     } });
 }

@@ -9,14 +9,12 @@ pub fn VisualizeNode(n: *ast.Node, aloc: std.mem.Allocator, tier: usize) !void {
             std.debug.print("{s}\n", .{try n.fmt(aloc)});
             for (p.body.items.items) |s| {
                 try VisualizeNode(s, aloc, tier + 1);
-                // std.debug.print("\n", .{});
             }
         },
         .ProjectTree => |p| {
             std.debug.print("{s}\n", .{try n.fmt(aloc)});
             for (p.body.items.items) |s| {
                 try VisualizeNode(s, aloc, tier + 1);
-                // std.debug.print("\n", .{});
             }
         },
         .Param => |p| {
@@ -27,7 +25,6 @@ pub fn VisualizeNode(n: *ast.Node, aloc: std.mem.Allocator, tier: usize) !void {
             std.debug.print("{s}\n", .{try n.fmt(aloc)});
             for (p.body.items.items) |s| {
                 try VisualizeNode(s, aloc, tier + 1);
-                // std.debug.print("\n", .{});
             }
         },
 
@@ -53,7 +50,22 @@ pub fn VisualizeNode(n: *ast.Node, aloc: std.mem.Allocator, tier: usize) !void {
             try VisualizeNode(p.body, aloc, tier + 1);
             try VisualizeNode(p.alter, aloc, tier + 1);
         },
-
+        .PublicDecl => |p| {
+            std.debug.print("{s}\n", .{try n.fmt(aloc)});
+            try VisualizeNode(p.decl, aloc, tier + 1);
+        },
+        .StructDecl => |p| {
+            std.debug.print("{s}\n", .{try n.fmt(aloc)});
+            for (p.fields.items.items) |s| {
+                try VisualizeNode(s, aloc, tier + 1);
+            }
+        },
+        .EnumDecl => |p| {
+            std.debug.print("{s}\n", .{try n.fmt(aloc)});
+            for (p.fields.items.items) |s| {
+                try VisualizeNode(s, aloc, tier + 1);
+            }
+        },
         // Expressions
         .Null => |p| {
             _ = p;
@@ -85,6 +97,24 @@ pub fn VisualizeNode(n: *ast.Node, aloc: std.mem.Allocator, tier: usize) !void {
             std.debug.print("{s}\n", .{try n.fmt(aloc)});
             try VisualizeNode(p.left, aloc, tier + 1);
         },
+        .MemberExpr => |p| {
+            std.debug.print("{s}\n", .{try n.fmt(aloc)});
+            try VisualizeNode(p.member, aloc, tier + 1);
+            printTier(tier + 1);
+            std.debug.print("< {s} >\n", .{p.property});
+        },
+        .ComputedExpr => |p| {
+            std.debug.print("{s}\n", .{try n.fmt(aloc)});
+            try VisualizeNode(p.member, aloc, tier + 1);
+            try VisualizeNode(p.property, aloc, tier + 1);
+        },
+        .CallExpr => |p| {
+            std.debug.print("{s}\n", .{try n.fmt(aloc)});
+            try VisualizeNode(p.callee, aloc, tier + 1);
+            for (p.args.items.items) |s| {
+                try VisualizeNode(s, aloc, tier + 1);
+            }
+        },
 
         // Types
         .Symbol => |p| {
@@ -102,6 +132,8 @@ pub fn VisualizeNode(n: *ast.Node, aloc: std.mem.Allocator, tier: usize) !void {
             try VisualizeNode(p.sym, aloc, tier + 1);
         },
     }
+    printTier(tier + 1);
+    n.PrintLoc();
 }
 
 fn printTier(tier: usize) void {

@@ -92,35 +92,35 @@ pub const Parser = struct {
         } });
     }
 
-    pub fn getLoc(self: *Parser, n: *ast.Node) tk.loc {
-        _ = self;
-        switch (n.*) {
-            .Program => |e| return e.loc,
-            .Block => |e| return e.loc,
+    // pub fn getLoc(self: *Parser, n: *ast.Node) tk.loc {
+    //     _ = self;
+    //     switch (n.*) {
+    //         .Program => |e| return e.loc,
+    //         .Block => |e| return e.loc,
 
-            // Stmt
-            .VarDecl => |e| return e.loc,
-            .FuncDecl => |e| return e.loc,
-            .IfStmt => |e| return e.loc,
+    //         // Stmt
+    //         .VarDecl => |e| return e.loc,
+    //         .FuncDecl => |e| return e.loc,
+    //         .IfStmt => |e| return e.loc,
 
-            // Expr
-            .BinaryExpr => |e| return e.loc,
-            .Literal => |e| return e.loc,
-            .Identifier => |e| return e.loc,
-            .PrefixExpr => |e| return e.loc,
-            .PostfixExpr => |e| return e.loc,
+    //         // Expr
+    //         .BinaryExpr => |e| return e.loc,
+    //         .Literal => |e| return e.loc,
+    //         .Identifier => |e| return e.loc,
+    //         .PrefixExpr => |e| return e.loc,
+    //         .PostfixExpr => |e| return e.loc,
 
-            // Types
-            .Symbol => |e| return e.loc,
-            .MultiSymbol => |e| return e.loc,
-            .ArraySymbol => |e| return e.loc,
+    //         // Types
+    //         .Symbol => |e| return e.loc,
+    //         .MultiSymbol => |e| return e.loc,
+    //         .ArraySymbol => |e| return e.loc,
 
-            else => |p| {
-                std.debug.print("N/A {}\n", .{p});
-                return tk.loc{ .line = 0, .column = 0, .end_col = 0, .end_line = 0 };
-            },
-        }
-    }
+    //         else => |p| {
+    //             std.debug.print("N/A {}\n", .{p});
+    //             return tk.loc{ .line = 0, .column = 0, .end_col = 0, .end_line = 0 };
+    //         },
+    //     }
+    // }
 
     pub fn combineLoc(self: *Parser, start: tk.loc, end: tk.loc) tk.loc {
         _ = self;

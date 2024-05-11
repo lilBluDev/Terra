@@ -9,7 +9,7 @@ pub fn main() !void {
     const args = try std.process.argsAlloc(aloc);
     defer std.process.argsFree(aloc, args);
 
-    std.debug.print("{s}\n", .{args});
+    std.debug.print("\x1B[2J\x1B[H", .{});
 
     const terraC = comp.TerraC.init(aloc);
 

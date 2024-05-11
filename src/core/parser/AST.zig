@@ -6,6 +6,7 @@ pub const BasicValueTypes = enum {
     Float,
     Bool,
     String,
+    Null,
 };
 
 pub const Node = union(enum) {
@@ -48,6 +49,20 @@ pub const Node = union(enum) {
         alter: *Node,
         loc: tk.loc,
     },
+    PublicDecl: struct {
+        decl: *Node,
+        loc: tk.loc,
+    },
+    StructDecl: struct {
+        name: []const u8,
+        fields: NodesBlock,
+        loc: tk.loc,
+    },
+    EnumDecl: struct {
+        name: []const u8,
+        fields: NodesBlock,
+        loc: tk.loc,
+    },
 
     // Expressions
     Null: struct {},
@@ -81,6 +96,21 @@ pub const Node = union(enum) {
         left: *Node,
         loc: tk.loc,
     },
+    MemberExpr: struct {
+        member: *Node,
+        property: []const u8,
+        loc: tk.loc,
+    },
+    ComputedExpr: struct {
+        member: *Node,
+        property: *Node,
+        loc: tk.loc,
+    },
+    CallExpr: struct {
+        callee: *Node,
+        args: NodesBlock,
+        loc: tk.loc,
+    },
 
     // Types
     Symbol: struct {
@@ -105,6 +135,42 @@ pub const Node = union(enum) {
         }
     };
 
+    pub fn PrintLoc(self: *const Node) void {
+        const loc = self.getLoc();
+        std.debug.print("L:{}C:{} - L:{}C:{}\n", .{ loc.line, loc.column, loc.end_line, loc.end_col });
+    }
+
+    pub fn getLoc(self: *const Node) tk.loc {
+        switch (self.*) {
+            .Program => |p| return p.loc,
+            .Block => |b| return b.loc,
+            .VarDecl => |p| return p.loc,
+            .FuncDecl => |p| return p.loc,
+            .IfStmt => |p| return p.loc,
+            .PublicDecl => |p| return p.loc,
+            .StructDecl => |p| return p.loc,
+            .EnumDecl => |p| return p.loc,
+            .Identifier => |p| return p.loc,
+            .Literal => |p| return p.loc,
+            .AssignmentExpr => |p| return p.loc,
+            .BinaryExpr => |p| return p.loc,
+            .PrefixExpr => |p| return p.loc,
+            .PostfixExpr => |p| return p.loc,
+            .MemberExpr => |p| return p.loc,
+            .ComputedExpr => |p| return p.loc,
+            .CallExpr => |p| return p.loc,
+            .Symbol => |p| return p.loc,
+            .MultiSymbol => |p| return p.loc,
+            .ArraySymbol => |p| return p.loc,
+            else => return tk.loc{
+                .line = 0,
+                .column = 0,
+                .end_line = 0,
+                .end_col = 0,
+            },
+        }
+    }
+
     pub fn fmt(self: *const Node, aloc: std.mem.Allocator) ![]u8 {
         switch (self.*) {
             .Param => |p| return try std.fmt.allocPrint(aloc, "< Param: {s}>", .{p.key}),
@@ -112,6 +178,8 @@ pub const Node = union(enum) {
             // Statements
             .VarDecl => |p| return try std.fmt.allocPrint(aloc, "< VarDecl: {s}> ({})", .{ p.name, p.isConst }),
             .FuncDecl => |p| return try std.fmt.allocPrint(aloc, "< FuncDecl: {s}>", .{p.name}),
+            .StructDecl => |p| return try std.fmt.allocPrint(aloc, "< StructDecl: {s}>", .{p.name}),
+            .EnumDecl => |p| return try std.fmt.allocPrint(aloc, "< EnumDecl: {s}>", .{p.name}),
 
             // Expressions
             .Identifier => |p| return try std.fmt.allocPrint(aloc, "< Identifier: {s} >", .{p.name}),
@@ -167,6 +235,15 @@ pub const Node = union(enum) {
                 p.body.deinit(aloc);
                 p.alter.deinit(aloc);
             },
+            .PublicDecl => |p| {
+                p.decl.deinit(aloc);
+            },
+            .StructDecl => |p| {
+                p.fields.deinit(aloc);
+            },
+            .EnumDecl => |p| {
+                p.fields.deinit(aloc);
+            },
 
             // Expressions
             .AssignmentExpr => |p| {
@@ -182,6 +259,17 @@ pub const Node = union(enum) {
             },
             .PostfixExpr => |p| {
                 p.left.deinit(aloc);
+            },
+            .MemberExpr => |p| {
+                p.member.deinit(aloc);
+            },
+            .ComputedExpr => |p| {
+                p.member.deinit(aloc);
+                p.property.deinit(aloc);
+            },
+            .CallExpr => |p| {
+                p.callee.deinit(aloc);
+                p.args.deinit(aloc);
             },
 
             // Types

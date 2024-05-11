@@ -82,7 +82,7 @@ fn handleIdent() tk.Token {
             .loc = .{
                 .line = start_loc.line,
                 .column = start_loc.column,
-                .end_col = parseHead.loc.column - 1,
+                .end_col = parseHead.loc.column,
                 .end_line = parseHead.loc.line,
             },
         };
@@ -93,7 +93,7 @@ fn handleIdent() tk.Token {
             .loc = .{
                 .line = start_loc.line,
                 .column = start_loc.column,
-                .end_col = parseHead.loc.column - 1,
+                .end_col = parseHead.loc.column,
                 .end_line = parseHead.loc.line,
             },
         };
@@ -118,7 +118,7 @@ fn handleNum() tk.Token {
             .loc = .{
                 .line = start_loc.line,
                 .column = start_loc.column,
-                .end_col = parseHead.loc.column - 1,
+                .end_col = parseHead.loc.column,
                 .end_line = parseHead.loc.line,
             },
         };
@@ -130,7 +130,7 @@ fn handleNum() tk.Token {
             .loc = .{
                 .line = start_loc.line,
                 .column = start_loc.column,
-                .end_col = parseHead.loc.column - 1,
+                .end_col = parseHead.loc.column,
                 .end_line = parseHead.loc.line,
             },
         };
@@ -144,7 +144,7 @@ fn handleString() !tk.Token {
     while (peek() != quote and !isEnd()) {
         if (peek() == '\n') {
             parseHead.loc.line += 1;
-            parseHead.loc.column = 0;
+            parseHead.loc.column = 1;
         }
         _ = consume();
         if (isEnd()) {
@@ -165,7 +165,7 @@ fn handleString() !tk.Token {
             .loc = .{
                 .line = start_loc.line,
                 .column = start_loc.column,
-                .end_col = parseHead.loc.column - 1,
+                .end_col = parseHead.loc.column,
                 .end_line = parseHead.loc.line,
             },
         };
@@ -188,7 +188,7 @@ fn handleDoublesOperator() ?tk.Token {
                     .loc = .{
                         .line = start_loc.line,
                         .column = start_loc.column,
-                        .end_col = parseHead.loc.column - 1,
+                        .end_col = parseHead.loc.column,
                         .end_line = parseHead.loc.line,
                     },
                 };
@@ -213,7 +213,7 @@ pub fn startLexer() !std.ArrayListAligned(tk.Token, null) {
                     '\n' => {
                         _ = consume();
                         parseHead.loc.line += 1;
-                        parseHead.loc.column = 0;
+                        parseHead.loc.column = 1;
 
                         break;
                     },
@@ -284,9 +284,6 @@ pub fn startLexer() !std.ArrayListAligned(tk.Token, null) {
                 .end_line = parseHead.loc.line,
             },
         });
-
-        // parseHead.index += 1;
-        // parseHead.loc.column += 1;
     }
 
     try tokens.append(tk.Token{
