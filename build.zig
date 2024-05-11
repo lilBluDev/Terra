@@ -12,11 +12,6 @@ pub fn build(b: *std.Build) void {
         .target = target,
         .optimize = optimize,
     });
-
-    const cham_dep = b.dependency("chameleon", .{});
-    const cham_mod = cham_dep.module("chameleon");
-    exe.addModule("chameleon", cham_mod);
-
     b.installArtifact(exe);
 
     const run_cmd = b.addRunArtifact(exe);

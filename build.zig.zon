@@ -2,9 +2,9 @@
     .name = "Terra",
     .version = "0.0.0",
     .dependencies = .{
-        .chameleon = .{
-            .url = "https://github.com/tr1ckydev/chameleon/archive/3d7fdd61598edecacd2c53c5ecff76a79abb8661.tar.gz",
-            .hash = "1220018d65a2105db410846019d23fd9966ace9f5cacc2fdec5c1ad4275009b94b70",
+        .@"zig-cli" = .{
+            .url = "https://github.com/sam701/zig-cli/archive/refs/tags/last-working-with-zig-0.11.tar.gz",
+            .hash = "12209bf5ef5ea0a5832797fabe65efadc63deb5af3178309ecf7b03a67aabfdbbfae",
         },
     },
     .paths = .{
