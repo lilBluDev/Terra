@@ -137,7 +137,7 @@ pub const Node = union(enum) {
 
     pub fn PrintLoc(self: *const Node) void {
         const loc = self.getLoc();
-        std.debug.print("L:{}C:{} - L:{}C:{}\n", .{ loc.line, loc.column, loc.end_line, loc.end_col });
+        std.debug.print("{}:{} - {}:{}\n", .{ loc.line, loc.column, loc.end_line, loc.end_col });
     }
 
     pub fn getLoc(self: *const Node) tk.loc {

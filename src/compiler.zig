@@ -29,6 +29,5 @@ pub const TerraC = struct {
 
         // std.debug.print("Token: {any}\n", .{tokens.items});
         try ntv.VisualizeNode(prgm, self.aloc, 0);
-        // std.debug.print("{any}\n", .{prgm.Program.body.items.items[0]});
     }
 };

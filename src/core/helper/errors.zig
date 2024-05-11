@@ -1,5 +1,5 @@
 const std = @import("std");
-const Chameleon = @import("chameleon").Chameleon;
+const Chameleon = @import("../../lib/chameleon/chameleon.zig").Chameleon;
 const tk = @import("../lexer/tokens.zig");
 
 // Error Example:
