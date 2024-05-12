@@ -1,4 +1,5 @@
 const std = @import("std");
+const errs = @import("../helper/errors.zig");
 
 const page_allocator = std.heap.page_allocator;
 const Allocator = std.mem.Allocator;
@@ -10,10 +11,10 @@ const isAlpha = std.ascii.isAlphabetic;
 const isAlphaNum = std.ascii.isAlphanumeric;
 
 pub const ParseHead = struct {
+    tag: []const u8,
     source: []const u8,
     start: []const u8,
     original: []const u8,
-    index: usize,
     loc: struct {
         line: usize,
         column: usize,
@@ -52,12 +53,12 @@ fn isWhitespace() bool {
     };
 }
 
-pub fn Init(source: []const u8) void {
+pub fn Init(tag: []const u8, source: []const u8) void {
     parseHead = ParseHead{
+        .tag = tag,
         .source = source,
         .start = source,
         .original = source,
-        .index = 0,
         .loc = .{
             .line = 1,
             .column = 1,
@@ -148,13 +149,25 @@ fn handleString() !tk.Token {
         }
         _ = consume();
         if (isEnd()) {
-            std.debug.print("Unterminated string found\n", .{});
+            // std.debug.print("Unterminated string found\n", .{});
+            errs.printErr(errs.ErrMsg{
+                .line = start_loc.line,
+                .col = start_loc.column,
+                .tag = parseHead.tag,
+                .msg = "Unterminated string found",
+            });
             std.process.exit(0);
         }
     }
 
     if (peek() != quote) {
-        std.debug.print("Unterminated string found\n", .{});
+        errs.printErr(errs.ErrMsg{
+            .line = start_loc.line,
+            .col = start_loc.column,
+            .tag = parseHead.tag,
+            .msg = "Unterminated string found",
+        });
+        std.process.exit(0);
         std.process.exit(0);
     } else {
         _ = consume();

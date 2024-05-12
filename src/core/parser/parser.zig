@@ -3,6 +3,7 @@ const lx = @import("../lexer/lexer.zig");
 const tk = @import("../lexer/tokens.zig");
 const ast = @import("./AST.zig");
 const stmt = @import("./stmt.zig");
+const errs = @import("../helper/errors.zig");
 
 pub const Parser = struct {
     aloc: std.mem.Allocator,
@@ -55,15 +56,33 @@ pub const Parser = struct {
     }
 
     pub fn expectError(self: *Parser, t: tk.TokenType) void {
-        if (self.currentTokenType() != t) {
-            std.debug.print("Expected {s} but got {s}\n", .{ tk.TokenType2String(t), tk.TokenType2String(self.currentTokenType()) });
+        const curr = self.currentToken();
+        if (curr.token_type != t) {
+            const str = std.fmt.allocPrint(std.heap.page_allocator, "Expected {s} but got {s}", .{ tk.TokenType2String(t), tk.TokenType2String(self.currentTokenType()) }) catch |err| {
+                if (err == std.fmt.AllocPrintError.OutOfMemory) {
+                    std.debug.print("Failed to print!\n", .{});
+                    return;
+                } else {
+                    std.debug.print("Failed to print!\n", .{});
+                    return;
+                }
+            };
+
+            errs.printErr(errs.ErrMsg{
+                .line = curr.loc.line,
+                .col = curr.loc.column,
+                .tag = self.lx.tag,
+                .msg = str,
+            });
+
             std.process.exit(0);
         }
     }
 
-    pub fn parse(self: *Parser) !*ast.Node {
+    pub fn parse(self: *Parser, tag: []const u8) !*ast.Node {
         const prgm = self.mkNode(ast.Node{
             .Program = .{
+                .tag = tag,
                 .body = ast.Node.NodesBlock{ .items = std.ArrayListAligned(*ast.Node, null).init(self.aloc) },
                 .loc = self.combineLoc(self.currentToken().loc, self.tks.items[self.tks.items.len - 1].loc),
             },
@@ -91,36 +110,6 @@ pub const Parser = struct {
             .loc = self.combineLoc(start.loc, self.prev().loc),
         } });
     }
-
-    // pub fn getLoc(self: *Parser, n: *ast.Node) tk.loc {
-    //     _ = self;
-    //     switch (n.*) {
-    //         .Program => |e| return e.loc,
-    //         .Block => |e| return e.loc,
-
-    //         // Stmt
-    //         .VarDecl => |e| return e.loc,
-    //         .FuncDecl => |e| return e.loc,
-    //         .IfStmt => |e| return e.loc,
-
-    //         // Expr
-    //         .BinaryExpr => |e| return e.loc,
-    //         .Literal => |e| return e.loc,
-    //         .Identifier => |e| return e.loc,
-    //         .PrefixExpr => |e| return e.loc,
-    //         .PostfixExpr => |e| return e.loc,
-
-    //         // Types
-    //         .Symbol => |e| return e.loc,
-    //         .MultiSymbol => |e| return e.loc,
-    //         .ArraySymbol => |e| return e.loc,
-
-    //         else => |p| {
-    //             std.debug.print("N/A {}\n", .{p});
-    //             return tk.loc{ .line = 0, .column = 0, .end_col = 0, .end_line = 0 };
-    //         },
-    //     }
-    // }
 
     pub fn combineLoc(self: *Parser, start: tk.loc, end: tk.loc) tk.loc {
         _ = self;

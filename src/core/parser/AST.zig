@@ -16,6 +16,7 @@ pub const Node = union(enum) {
         libs: NodesBlock,
     },
     Program: struct {
+        tag: []const u8,
         body: NodesBlock,
         loc: tk.loc,
     },

@@ -165,7 +165,7 @@ const HelpPrinter = struct {
         self.printer.printColor(self.help_config.color_option);
         self.printer.write("--help");
         self.printer.printColor(color_clear);
-        self.printer.printSpaces(option_column_width - 4);
+        self.printer.printSpaces(option_column_width);
         self.printer.format("Prints help information\n", .{});
     }
 };

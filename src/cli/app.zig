@@ -1,9 +1,13 @@
 // const commando = @import("commando.zig");
 const std = @import("std");
 const zigCli = @import("../lib/zig-cli/main.zig");
+const comp = @import("../compiler.zig");
+const fsH = @import("../core/helper/fsHelper.zig");
+const ntv = @import("../core/helper/nodeTreeVisualizer.zig");
 
 var input = struct {
     visualize_tree: bool = false,
+    run_path: []const u8 = undefined,
 }{};
 
 pub const CliApp = struct {
@@ -23,6 +27,12 @@ pub const CliApp = struct {
             .value_ref = zigCli.mkRef(&input.visualize_tree),
         };
 
+        var runPArgPath = zigCli.PositionalArg{
+            .name = "path",
+            .help = "path to run a file/project",
+            .value_ref = zigCli.mkRef(&input.run_path),
+        };
+
         const runCmd = &zigCli.Command{
             .name = "run",
             .description = zigCli.Description{ .one_line = "run Terra projects/scripts" },
@@ -30,6 +40,9 @@ pub const CliApp = struct {
             .target = zigCli.CommandTarget{
                 .action = zigCli.CommandAction{
                     .exec = run_cmd,
+                    .positional_args = zigCli.PositionalArgs{
+                        .args = &.{&runPArgPath},
+                    },
                 },
             },
         };
@@ -58,5 +71,32 @@ fn default_cmd() !void {
 }
 
 fn run_cmd() !void {
-    std.debug.print("run\n", .{});
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    const aloc = gpa.allocator();
+
+    const c = &input;
+
+    // std.debug.print("{s}", .{c.run_path[c.run_path.len - 3 .. c.run_path.len]});
+
+    if (std.mem.eql(u8, c.run_path[c.run_path.len - 3 .. c.run_path.len], ".tr")) {
+        // const file = std.fs.cwd().openFile(c.*.run_path, .{}) catch |er| {
+        //     if (er == std.fs.File.OpenError.FileNotFound) {
+        //         std.debug.print("File Not Found!\n", .{});
+        //     } else {
+        //         std.debug.print("Unable to run file!", .{});
+        //     }
+        //     std.process.exit(0);
+        // };
+        // const content = try fsH.getFileContents(aloc, file);
+        std.debug.print("running {s}\n", .{try std.fs.cwd().realpathAlloc(aloc, c.run_path)});
+
+        // const TerraC = comp.TerraC.init(aloc);
+        // const prgm = try TerraC.parseSingle(content, std.fs.cwd().);
+        // defer prgm.deinit(aloc);
+
+        // if (c.visualize_tree) try ntv.VisualizeNode(prgm, aloc, 0);
+    } else {
+        std.debug.print("Connot yet run a whole project!\n", .{});
+        std.process.exit(0);
+    }
 }

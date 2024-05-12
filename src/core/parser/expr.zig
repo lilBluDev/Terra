@@ -4,6 +4,7 @@ const tk = @import("../lexer/tokens.zig");
 const ast = @import("./AST.zig");
 const Parser = @import("./parser.zig");
 const lus = @import("./lookUps.zig");
+const errs = @import("../helper/errors.zig");
 
 pub fn parseExpr(p: *Parser.Parser, bp: lus.binding_power) !*ast.Node {
     if (lus.infix_lu.get(p.currentTokenType())) |infHandler| {
@@ -15,14 +16,43 @@ pub fn parseExpr(p: *Parser.Parser, bp: lus.binding_power) !*ast.Node {
             if (lus.atomic_lu.get(p.currentTokenType())) |atomicHandler| {
                 left = try atomicHandler(p, left, bp);
             } else {
-                std.debug.print("No Atomic handler for {}\n", .{p.currentTokenType()});
+                // std.debug.print("No Atomic handler for {}\n", .{p.currentTokenType()});
+                const str = std.fmt.allocPrint(std.heap.page_allocator, "No Atomic handler for {}", .{p.currentTokenType()}) catch |err| {
+                    if (err == std.fmt.AllocPrintError.OutOfMemory) {
+                        std.debug.print("Failed to print!\n", .{});
+                        std.process.exit(0);
+                    } else {
+                        std.debug.print("Failed to print!\n", .{});
+                        std.process.exit(0);
+                    }
+                };
+                errs.printErr(errs.ErrMsg{
+                    .line = p.currentToken().loc.line,
+                    .col = p.currentToken().loc.column,
+                    .tag = p.lx.tag,
+                    .msg = str,
+                });
                 std.process.exit(0);
             }
         }
 
         return left;
     } else {
-        std.debug.print("No Infix handler for {}\n", .{p.currentTokenType()});
+        const str = std.fmt.allocPrint(std.heap.page_allocator, "No infix handler for {}", .{p.currentTokenType()}) catch |err| {
+            if (err == std.fmt.AllocPrintError.OutOfMemory) {
+                std.debug.print("Failed to print!\n", .{});
+                std.process.exit(0);
+            } else {
+                std.debug.print("Failed to print!\n", .{});
+                std.process.exit(0);
+            }
+        };
+        errs.printErr(errs.ErrMsg{
+            .line = p.currentToken().loc.line,
+            .col = p.currentToken().loc.column,
+            .tag = p.lx.tag,
+            .msg = str,
+        });
         std.process.exit(0);
     }
 }
