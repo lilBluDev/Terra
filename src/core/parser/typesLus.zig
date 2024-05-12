@@ -113,12 +113,17 @@ fn parseMultiSymbol(p: *Parser.Parser, bp: maps.binding_power) !*ast.Node {
 fn parseArraySymbol(p: *Parser.Parser, bp: maps.binding_power) !*ast.Node {
     // TODO: Make it so it can set a size for the array between the []
     const s = p.expectAndAdvance(.LeftBracket);
+    var size: usize = 0;
+    if (!p.currentToken().is(.RightBracket)) {
+        const num = p.advance();
+        size = try std.fmt.parseInt(usize, num.value, 10);
+    }
     _ = p.expectAndAdvance(.RightBracket);
     const sym = try parseType(p, bp);
 
     return p.mkNode(ast.Node{ .ArraySymbol = .{
         .sym = sym,
         .loc = p.combineLoc(s.loc, sym.getLoc()),
-        .size = 0,
+        .size = size,
     } });
 }

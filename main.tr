@@ -33,3 +33,9 @@ const p := Player {
     },
     state = State.Idle
 };
+
+const board: [3][3]str = [
+    [ [], [], [] ],
+    [ [], [], [] ],
+    [ [], [], [] ],
+];

@@ -122,6 +122,12 @@ pub fn VisualizeNode(n: *ast.Node, aloc: std.mem.Allocator, tier: usize) !void {
                 try VisualizeNode(s, aloc, tier + 1);
             }
         },
+        .ArrayInit => |p| {
+            std.debug.print("{s}\n", .{try n.fmt(aloc)});
+            for (p.contents.items.items) |s| {
+                try VisualizeNode(s, aloc, tier + 1);
+            }
+        },
 
         // Types
         .Symbol => |p| {

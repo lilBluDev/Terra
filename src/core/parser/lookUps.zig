@@ -52,6 +52,7 @@ pub fn loadLUs() void {
     infix(.FalseKeyword, expr.parsePrimary);
 
     infix(.LeftParen, expr.parseGroupings);
+    infix(.LeftBracket, expr.parseArrayInitExpr);
 
     infix(.Plus, expr.parsePrefixExpr);
     infix(.Minus, expr.parsePrefixExpr);

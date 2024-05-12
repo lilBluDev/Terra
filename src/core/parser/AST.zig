@@ -117,6 +117,10 @@ pub const Node = union(enum) {
         contents: NodesBlock,
         loc: tk.loc,
     },
+    ArrayInit: struct {
+        contents: NodesBlock,
+        loc: tk.loc,
+    },
 
     // Types
     Symbol: struct {
@@ -166,6 +170,7 @@ pub const Node = union(enum) {
             .ComputedExpr => |p| return p.loc,
             .CallExpr => |p| return p.loc,
             .ObjInit => |p| return p.loc,
+            .ArrayInit => |p| return p.loc,
             .Symbol => |p| return p.loc,
             .MultiSymbol => |p| return p.loc,
             .ArraySymbol => |p| return p.loc,
@@ -280,6 +285,9 @@ pub const Node = union(enum) {
             },
             .ObjInit => |p| {
                 p.name.deinit(aloc);
+                p.contents.deinit(aloc);
+            },
+            .ArrayInit => |p| {
                 p.contents.deinit(aloc);
             },
 

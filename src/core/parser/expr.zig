@@ -239,7 +239,24 @@ pub fn parseObjInitExpr(p: *Parser.Parser, left: *ast.Node, bp: lus.binding_powe
     return p.mkNode(ast.Node{ .ObjInit = .{ .name = name, .contents = ast.Node.NodesBlock{ .items = contents }, .loc = tk.loc{
         .line = name.getLoc().line,
         .column = name.getLoc().column,
-        .end_line = p.prev().loc.line,
-        .end_col = p.prev().loc.column,
+        .end_line = p.prev().loc.end_line,
+        .end_col = p.prev().loc.end_col,
     } } });
+}
+
+pub fn parseArrayInitExpr(p: *Parser.Parser, bp: lus.binding_power) !*ast.Node {
+    _ = bp;
+    const s = p.expectAndAdvance(.LeftBracket);
+    var contents = std.ArrayListAligned(*ast.Node, null).init(p.aloc);
+    while (!p.currentToken().is(.RightBracket) and !p.currentToken().is(.EOF)) {
+        const expr = try parseExpr(p, .default);
+        try contents.append(p.mkNode(ast.Node{ .Param = .{
+            .key = "",
+            .value = expr,
+        } }));
+        if (!p.currentToken().is(.RightBracket) and !p.currentToken().is(.EOF)) _ = p.expectAndAdvance(.Comma);
+    }
+    _ = p.expectAndAdvance(.RightBracket);
+
+    return p.mkNode(ast.Node{ .ArrayInit = .{ .contents = ast.Node.NodesBlock{ .items = contents }, .loc = tk.loc{ .line = s.loc.line, .column = s.loc.column, .end_line = p.prev().loc.end_line, .end_col = p.prev().loc.end_col } } });
 }
