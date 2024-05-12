@@ -115,6 +115,13 @@ pub fn VisualizeNode(n: *ast.Node, aloc: std.mem.Allocator, tier: usize) !void {
                 try VisualizeNode(s, aloc, tier + 1);
             }
         },
+        .ObjInit => |p| {
+            std.debug.print("{s}\n", .{try n.fmt(aloc)});
+            try VisualizeNode(p.name, aloc, tier + 1);
+            for (p.contents.items.items) |s| {
+                try VisualizeNode(s, aloc, tier + 1);
+            }
+        },
 
         // Types
         .Symbol => |p| {

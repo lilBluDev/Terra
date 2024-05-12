@@ -79,22 +79,23 @@ fn run_cmd() !void {
     // std.debug.print("{s}", .{c.run_path[c.run_path.len - 3 .. c.run_path.len]});
 
     if (std.mem.eql(u8, c.run_path[c.run_path.len - 3 .. c.run_path.len], ".tr")) {
-        // const file = std.fs.cwd().openFile(c.*.run_path, .{}) catch |er| {
-        //     if (er == std.fs.File.OpenError.FileNotFound) {
-        //         std.debug.print("File Not Found!\n", .{});
-        //     } else {
-        //         std.debug.print("Unable to run file!", .{});
-        //     }
-        //     std.process.exit(0);
-        // };
-        // const content = try fsH.getFileContents(aloc, file);
-        std.debug.print("running {s}\n", .{try std.fs.cwd().realpathAlloc(aloc, c.run_path)});
+        const file = std.fs.cwd().openFile(c.*.run_path, .{}) catch |er| {
+            if (er == std.fs.File.OpenError.FileNotFound) {
+                std.debug.print("File Not Found!\n", .{});
+            } else {
+                std.debug.print("Unable to run file!", .{});
+            }
+            std.process.exit(0);
+        };
+        const content = try fsH.getFileContents(aloc, file);
+        const path = try std.fs.cwd().realpathAlloc(aloc, c.run_path);
+        std.debug.print("running {s}\n", .{path});
 
-        // const TerraC = comp.TerraC.init(aloc);
-        // const prgm = try TerraC.parseSingle(content, std.fs.cwd().);
-        // defer prgm.deinit(aloc);
+        const TerraC = comp.TerraC.init(aloc);
+        const prgm = try TerraC.parseSingle(content, path);
+        defer prgm.deinit(aloc);
 
-        // if (c.visualize_tree) try ntv.VisualizeNode(prgm, aloc, 0);
+        if (c.visualize_tree) try ntv.VisualizeNode(prgm, aloc, 0);
     } else {
         std.debug.print("Connot yet run a whole project!\n", .{});
         std.process.exit(0);

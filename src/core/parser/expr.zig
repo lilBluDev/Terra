@@ -16,7 +16,6 @@ pub fn parseExpr(p: *Parser.Parser, bp: lus.binding_power) !*ast.Node {
             if (lus.atomic_lu.get(p.currentTokenType())) |atomicHandler| {
                 left = try atomicHandler(p, left, bp);
             } else {
-                // std.debug.print("No Atomic handler for {}\n", .{p.currentTokenType()});
                 const str = std.fmt.allocPrint(std.heap.page_allocator, "No Atomic handler for {}", .{p.currentTokenType()}) catch |err| {
                     if (err == std.fmt.AllocPrintError.OutOfMemory) {
                         std.debug.print("Failed to print!\n", .{});
@@ -218,4 +217,29 @@ pub fn parseCallExpr(p: *Parser.Parser, left: *ast.Node, bp: lus.binding_power) 
         .args = ast.Node.NodesBlock{ .items = args },
         .loc = p.combineLoc(left.getLoc(), p.prev().loc),
     } });
+}
+
+pub fn parseObjInitExpr(p: *Parser.Parser, left: *ast.Node, bp: lus.binding_power) !*ast.Node {
+    const name = left;
+    _ = bp;
+    _ = p.expectAndAdvance(.LeftBrace);
+    var contents = std.ArrayListAligned(*ast.Node, null).init(p.aloc);
+    while (!p.currentToken().is(.RightBrace) and !p.currentToken().is(.EOF)) {
+        const Pname = p.advance();
+        _ = p.expectAndAdvance(.Equals);
+        const expr = try parseExpr(p, .default);
+        try contents.append(p.mkNode(ast.Node{ .Param = .{
+            .key = Pname.value,
+            .value = expr,
+        } }));
+        if (!p.currentToken().is(.RightBrace) and !p.currentToken().is(.EOF)) _ = p.expectAndAdvance(.Comma);
+    }
+    _ = p.expectAndAdvance(.RightBrace);
+
+    return p.mkNode(ast.Node{ .ObjInit = .{ .name = name, .contents = ast.Node.NodesBlock{ .items = contents }, .loc = tk.loc{
+        .line = name.getLoc().line,
+        .column = name.getLoc().column,
+        .end_line = p.prev().loc.line,
+        .end_col = p.prev().loc.column,
+    } } });
 }

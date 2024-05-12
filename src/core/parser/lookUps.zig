@@ -86,6 +86,7 @@ pub fn loadLUs() void {
     atomic(.LeftParen, .call, expr.parseCallExpr);
     atomic(.Dot, .member, expr.parseMemberExpr);
     atomic(.LeftBracket, .member, expr.parseMemberExpr);
+    atomic(.LeftBrace, .primary, expr.parseObjInitExpr);
 
     stmt(.Var, stmts.parseVarDeclStmt);
     stmt(.Const, stmts.parseVarDeclStmt);

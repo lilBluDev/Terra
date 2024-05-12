@@ -23,3 +23,13 @@ struct Player {
         self.pos;
     }
 }
+
+const p := Player {
+    tag = "Tc",
+    hp = 10,
+    pos = Vec2 {
+        x = 0,
+        y = 0
+    },
+    state = State.Idle
+};

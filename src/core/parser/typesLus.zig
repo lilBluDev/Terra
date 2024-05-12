@@ -27,6 +27,9 @@ pub fn loadLUs() void {
     infix(.Identifier, parseSymbol);
     infix(.LeftBracket, parseArraySymbol);
     infix(.LeftParen, parseMultiSymbol);
+
+    atomic(.Dot, .member, expr.parseMemberExpr);
+    atomic(.LeftBracket, .member, expr.parseMemberExpr);
 }
 
 pub fn parseType(p: *Parser.Parser, bp: maps.binding_power) !*ast.Node {
