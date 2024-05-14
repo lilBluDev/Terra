@@ -149,7 +149,6 @@ fn handleString() !tk.Token {
         }
         _ = consume();
         if (isEnd()) {
-            // std.debug.print("Unterminated string found\n", .{});
             errs.printErr(errs.ErrMsg{
                 .line = start_loc.line,
                 .col = start_loc.column,
@@ -167,7 +166,6 @@ fn handleString() !tk.Token {
             .tag = parseHead.tag,
             .msg = "Unterminated string found",
         });
-        std.process.exit(0);
         std.process.exit(0);
     } else {
         _ = consume();
