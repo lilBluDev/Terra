@@ -20,7 +20,7 @@ pub fn main() !void {
         try cli.start();
     } else {
         comptime var cham = chameleon.init(.Auto);
-        const str = "<< " ++ name ++ " " ++ version ++ ">>\n";
+        const str = "<< " ++ name ++ " " ++ version ++ " >>\n";
 
         std.debug.print(cham.grey().fmt(str), .{});
 
