@@ -18,16 +18,6 @@ pub fn printErrHead(tag: []const u8, l: usize, c: usize) void {
 
 pub fn printPreviewLine(line: usize) void {
     comptime var cham = Chameleon.init(.Auto);
-
-    // const line_str = std.fmt.allocPrint(std.heap.page_allocator, "{} | ", .{line}) catch |err| {
-    //     if (err == std.fmt.AllocPrintError.OutOfMemory) {
-    //         std.debug.print("Failed to print!\n", .{});
-    //         return;
-    //     } else {
-    //         std.debug.print("Failed to print!\n", .{});
-    //         return;
-    //     }
-    // };
     std.debug.print(cham.cyan().fmt("{} | "), .{line});
 
     var line_prev: []const u8 = undefined;
@@ -60,6 +50,8 @@ pub fn printErrArrow(line: usize, col: usize) void {
 }
 
 pub fn printErr(err: ErrMsg) void {
+    comptime var cham = Chameleon.init(.Auto);
+
     std.debug.print("\n", .{});
     for (0..40) |i| {
         _ = i;
@@ -74,5 +66,6 @@ pub fn printErr(err: ErrMsg) void {
         std.debug.print("=", .{});
     }
     std.debug.print("\n\n", .{});
-    std.debug.print("{s}\n", .{err.msg});
+    std.debug.print(cham.redBright().fmt("Error"), .{});
+    std.debug.print(": {s}\n", .{err.msg});
 }
