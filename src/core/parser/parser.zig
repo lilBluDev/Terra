@@ -58,7 +58,7 @@ pub const Parser = struct {
     pub fn expectError(self: *Parser, t: tk.TokenType) void {
         const curr = self.currentToken();
         if (curr.token_type != t) {
-            const str = std.fmt.allocPrint(std.heap.page_allocator, "Expected {s} but got {s}", .{ tk.TokenType2String(t), tk.TokenType2String(self.currentTokenType()) }) catch |err| {
+            const str = std.fmt.allocPrint(std.heap.page_allocator, "Expected '{s}' but got '{s}'", .{ tk.TokenType2String(t), tk.TokenType2String(self.currentTokenType()) }) catch |err| {
                 if (err == std.fmt.AllocPrintError.OutOfMemory) {
                     std.debug.print("Failed to print!\n", .{});
                     return;

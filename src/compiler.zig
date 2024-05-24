@@ -2,7 +2,7 @@ const std = @import("std");
 const lexer = @import("./core/lexer/lexer.zig");
 // const new_lexer = @import("./core/lexer/nLexer.zig").ParseHead;
 const parser = @import("./core/parser/parser.zig");
-const typeChecker = @import("./core/validator/typechecker.zig");
+const checker = @import("./core/validator/checker.zig");
 const LUs = @import("./core/parser/lookUps.zig");
 const TLUs = @import("./core/parser/typesLus.zig");
 const ntv = @import("./core/helper/nodeTreeVisualizer.zig");
@@ -24,8 +24,7 @@ pub const TerraC = struct {
         const tokens = try lexer.startLexer();
         var parserInst = parser.Parser.init(self.aloc, tokens);
         const prgm = try parserInst.parse(tag);
-        var tc = typeChecker.TypeChecker.init(self.aloc, tag);
-        try tc.validatePrgm(prgm);
+        checker.check(self.aloc, prgm.Program.body);
         return prgm;
     }
 };

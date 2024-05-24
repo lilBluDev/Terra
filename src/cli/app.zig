@@ -89,7 +89,7 @@ fn run_cmd() !void {
         };
         const content = try fsH.getFileContents(aloc, file);
         const path = try std.fs.cwd().realpathAlloc(aloc, c.run_path);
-        std.debug.print("running {s}\n", .{path});
+        std.debug.print("running {s}\n\n", .{path});
 
         const TerraC = comp.TerraC.init(aloc);
         const prgm = try TerraC.parseSingle(content, path);
