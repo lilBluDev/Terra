@@ -185,26 +185,28 @@ pub const Node = union(enum) {
 
     pub fn fmt(self: *const Node, aloc: std.mem.Allocator) ![]u8 {
         switch (self.*) {
-            .Param => |p| return try std.fmt.allocPrint(aloc, "< Param: {s}>", .{p.key}),
+            .Program => |p| return try std.fmt.allocPrint(aloc, "Program ({s})", .{p.tag}),
+
+            .Param => |p| return try std.fmt.allocPrint(aloc, "Param: {s}", .{p.key}),
 
             // Statements
-            .VarDecl => |p| return try std.fmt.allocPrint(aloc, "< VarDecl: {s}> ({})", .{ p.name, p.isConst }),
-            .FuncDecl => |p| return try std.fmt.allocPrint(aloc, "< FuncDecl: {s}>", .{p.name}),
-            .StructDecl => |p| return try std.fmt.allocPrint(aloc, "< StructDecl: {s}>", .{p.name}),
-            .EnumDecl => |p| return try std.fmt.allocPrint(aloc, "< EnumDecl: {s}>", .{p.name}),
+            .VarDecl => |p| return try std.fmt.allocPrint(aloc, "VarDecl: {s} ({})", .{ p.name, p.isConst }),
+            .FuncDecl => |p| return try std.fmt.allocPrint(aloc, "FuncDecl: {s}", .{p.name}),
+            .StructDecl => |p| return try std.fmt.allocPrint(aloc, "StructDecl: {s}", .{p.name}),
+            .EnumDecl => |p| return try std.fmt.allocPrint(aloc, "EnumDecl: {s}", .{p.name}),
 
             // Expressions
-            .Identifier => |p| return try std.fmt.allocPrint(aloc, "< Identifier: {s} >", .{p.name}),
-            .Literal => |p| return try std.fmt.allocPrint(aloc, "< Literal: {s} > ({s})", .{ p.value, @tagName(p.type) }),
-            .BinaryExpr => |p| return try std.fmt.allocPrint(aloc, "< BinarayExpr: {s} >", .{@tagName(p.op)}),
-            .PrefixExpr => |p| return try std.fmt.allocPrint(aloc, "< PrefixExpr: {s} >", .{@tagName(p.op)}),
-            .PostfixExpr => |p| return try std.fmt.allocPrint(aloc, "< PostfixExpr: {s} >", .{@tagName(p.op)}),
+            .Identifier => |p| return try std.fmt.allocPrint(aloc, "Identifier: {s}", .{p.name}),
+            .Literal => |p| return try std.fmt.allocPrint(aloc, "Literal: {s} ({s})", .{ p.value, @tagName(p.type) }),
+            .BinaryExpr => |p| return try std.fmt.allocPrint(aloc, "BinarayExpr: {s}", .{@tagName(p.op)}),
+            .PrefixExpr => |p| return try std.fmt.allocPrint(aloc, "PrefixExpr: {s}", .{@tagName(p.op)}),
+            .PostfixExpr => |p| return try std.fmt.allocPrint(aloc, "PostfixExpr: {s}", .{@tagName(p.op)}),
 
             // Types
-            .Symbol => |p| return try std.fmt.allocPrint(aloc, "< Symbol: {s} >", .{p.name}),
-            .ArraySymbol => |p| return try std.fmt.allocPrint(aloc, "< ArraySymbol ({}) >", .{p.size}),
+            .Symbol => |p| return try std.fmt.allocPrint(aloc, "Symbol: {s}", .{p.name}),
+            .ArraySymbol => |p| return try std.fmt.allocPrint(aloc, "ArraySymbol ({})", .{p.size}),
 
-            else => |p| return try std.fmt.allocPrint(aloc, "< {s} >", .{@tagName(p)}),
+            else => |p| return try std.fmt.allocPrint(aloc, "{s}", .{@tagName(p)}),
         }
     }
 
