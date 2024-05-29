@@ -3,19 +3,12 @@ const ast = @import("../parser/AST.zig");
 const TyVals = @import("../validator/TypeVals.zig");
 
 pub const Context = struct {
-    parent: ?*Context,
+    pub const strHasMap = std.StringArrayHashMap(*TyVals.TypeVal);
 
-    symbols: std.StringArrayHashMap(*TyVals.TypeVal),
+    symbols: strHasMap,
 
-    pub fn resolve(self: *Context, symbol: []const u8) *TyVals.TypeVal {
-        if (self.symbols.get(symbol)) |res| {
-            return res;
-        } else if (self.parent) |parent| {
-            return parent.resolve(symbol);
-        } else {
-            std.debug.print("Cannot resolve \"{s}\"", .{symbol});
-            std.process.exit(0);
-        }
+    pub fn resolve(self: *Context, symbol: []const u8) ?*TyVals.TypeVal {
+        return self.symbols.get(symbol);
     }
 
     pub fn preDefine(self: *Context, symbol: []const u8, typeVal: *TyVals.TypeVal) void {
@@ -25,12 +18,28 @@ pub const Context = struct {
     pub fn whatIs(self: *Context, n: *ast.Node) *TyVals.TypeVal {
         switch (n.*) {
             .Identifier => |ident| {
-                return self.resolve(ident.name);
+                if (self.resolve(ident.name)) |typeVal| {
+                    return typeVal;
+                } else {
+                    std.debug.print("Symbol \"{s}\" not found", .{ident.name});
+                    std.process.exit(0);
+                }
             },
             .Symbol => |sym| {
-                return self.resolve(sym.name);
+                if (self.resolve(sym.name)) |typeVal| {
+                    return typeVal;
+                } else {
+                    std.debug.print("Symbol \"{s}\" not found", .{sym.name});
+                    std.process.exit(0);
+                }
             },
-
+            .MultiSymbol => |multiSym| {
+                var syms = std.ArrayList(*TyVals.TypeVal).init(self.symbols.allocator);
+                for (multiSym.syms.items.items) |sym| {
+                    syms.append(self.whatIs(sym)) catch unreachable;
+                }
+                return TyVals.mkTypeVal(self.symbols.allocator, TyVals.TypeVal{ .MultiSymbol = .{ .symbols = syms } });
+            },
             .MemberExpr => |member| {
                 return self.whatIs(member.member);
             },
@@ -54,6 +63,8 @@ pub const Context = struct {
                     },
                 }
             },
+
+            .ArraySymbol => |arraySymbol| return TyVals.mkTypeVal(self.symbols.allocator, TyVals.TypeVal{ .ArraySymbol = .{ .size = arraySymbol.size, .symbol = self.whatIs(arraySymbol.sym) } }),
 
             else => |p| {
                 std.debug.print("Cannot define the type of \"{s}\"", .{@tagName(p)});

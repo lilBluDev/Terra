@@ -1,12 +1,2 @@
-enum state {
-    idle,
-    moving
-}
-
-struct Vec2 {
-    x: int,
-    y: int,
-
-    state: state
-}
-
+const i := 0;
+i = 10;
