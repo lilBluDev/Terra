@@ -6,6 +6,7 @@ const Parser = @import("./parser.zig");
 const lus = @import("./lookUps.zig");
 const tlus = @import("./typesLus.zig");
 const exprs = @import("./expr.zig");
+const errs = @import("../helper/errors.zig");
 
 pub fn parseStmt(p: *Parser.Parser) !*ast.Node {
     if (lus.stmt_lu.get(p.currentTokenType())) |handler| {
@@ -53,11 +54,26 @@ pub fn parseVarDeclStmt(p: *Parser.Parser) !*ast.Node {
         ty = try tlus.parseType(p, .default);
     }
 
-    if (!ty.isNull() and p.currentToken().is(.Walrus)) {
-        std.debug.print("a walrus assignment should not need to specify the type!", .{});
+    const curr = p.currentToken();
+    if (!ty.isNull() and curr.is(.Walrus)) {
+        errs.printErr(errs.ErrMsg{
+            .msg = "a walrus assignment should not need to specify the type!",
+            .ErrKind = .Error,
+            .ErrType = "InvalidAssignment",
+            .tag = p.lx.tag,
+            .line = curr.loc.line,
+            .col = curr.loc.column,
+        });
         std.process.exit(0);
-    } else if (ty.isNull() and p.currentToken().is(.Equals)) {
-        std.debug.print("a normal assignment should need to specify the type!", .{});
+    } else if (ty.isNull() and curr.is(.Equals)) {
+        errs.printErr(errs.ErrMsg{
+            .msg = "a normal assignment should need to specify the type!",
+            .ErrKind = .Error,
+            .ErrType = "InvalidAssignment",
+            .tag = p.lx.tag,
+            .line = curr.loc.line,
+            .col = curr.loc.column,
+        });
         std.process.exit(0);
     }
 
@@ -68,7 +84,14 @@ pub fn parseVarDeclStmt(p: *Parser.Parser) !*ast.Node {
     }
 
     if (isConst and value.isNull()) {
-        std.debug.print("a constant variable must have a specified value!", .{});
+        errs.printErr(errs.ErrMsg{
+            .msg = "a constant variable must have a specified value!",
+            .ErrKind = .Error,
+            .ErrType = "InvalidAssignment",
+            .tag = p.lx.tag,
+            .line = curr.loc.line,
+            .col = curr.loc.column,
+        });
         std.process.exit(0);
     }
     _ = p.expectAndAdvance(.Semicolon);
