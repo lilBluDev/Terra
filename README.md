@@ -22,7 +22,13 @@ or you can use the pre-built exe!
 
 `terra help` / `terra [command] -h` - pull up the main help menu or info about a command.
 
-`terra run <file>` - to run and parse a file, you can use `-v` to view the AST.
+`terra run <file>` - to run and parse a file
+
+### Run Flags
+
+`--debug-ast` - prints the AST tree to visualize how it generated the AST.
+
+`--debug-token` - prints the tokens list (no visualizer).
 
 ## Simplefied Planned Syntax
 
