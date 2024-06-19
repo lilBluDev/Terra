@@ -51,6 +51,9 @@ pub fn loadLUs() void {
     infix(.TrueKeyword, expr.parsePrimary);
     infix(.FalseKeyword, expr.parsePrimary);
 
+    infix(.Struct, expr.parseStructDecl);
+    infix(.Enum, expr.parseEnumDecl);
+
     infix(.LeftParen, expr.parseGroupings);
     infix(.LeftBracket, expr.parseArrayInitExpr);
 
@@ -94,6 +97,4 @@ pub fn loadLUs() void {
     stmt(.Fn, stmts.parseFuncDeclStmt);
     stmt(.If, stmts.parseIfStmt);
     stmt(.Pub, stmts.parsePubStmt);
-    stmt(.Struct, stmts.parseStructStmt);
-    stmt(.Enum, stmts.parseEnumStmt);
 }

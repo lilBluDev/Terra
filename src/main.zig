@@ -40,7 +40,7 @@ pub fn main() !void {
                 } else {
                     // if (line[line.len - 1] != ';') line[line.len] = ';';
                     const TerraC = comp.TerraC.init(aloc);
-                    const prgm = try TerraC.parseSingle(line, "console");
+                    const prgm = try TerraC.parseSingle(line, "console", false);
                     defer prgm.deinit(aloc);
 
                     try ntv.VisualizeNode(prgm, aloc, 0);

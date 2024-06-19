@@ -13,7 +13,7 @@ pub const ErrMsg = struct {
     line: usize,
     col: usize,
     msg: ?[]const u8,
-    recommend: ?[]const u8,
+    // recommend: ?[]const u8,
     ErrType: []const u8,
     ErrKind: enum {
         Error,
@@ -81,11 +81,11 @@ pub fn printErr(err: ErrMsg) void {
         std.debug.print(cham.cyan().fmt(".message"), .{});
         std.debug.print(": {s}\n", .{msg});
     }
-    if (err.recommend) |msg| {
-        printPadding(3);
-        std.debug.print(cham.yellow().fmt(".suggestion"), .{});
-        std.debug.print(": {s}\n", .{msg});
-    }
+    // if (err.recommend) |msg| {
+    //     printPadding(3);
+    //     std.debug.print(cham.yellow().fmt(".suggestion"), .{});
+    //     std.debug.print(": {s}\n", .{msg});
+    // }
 }
 
 fn printPadding(size: usize) void {

@@ -19,9 +19,11 @@ pub const TerraC = struct {
         };
     }
 
-    pub fn parseSingle(self: *const TerraC, source: []const u8, tag: []const u8) !*ast.Node {
+    pub fn parseSingle(self: *const TerraC, source: []const u8, tag: []const u8, DBToken: bool) !*ast.Node {
         lexer.Init(tag, source);
         const tokens = try lexer.startLexer();
+        if (DBToken)
+            std.debug.print("{any}", .{tokens.items});
         var parserInst = parser.Parser.init(self.aloc, tokens);
         const prgm = try parserInst.parse(tag);
         // checker.check(self.aloc, prgm);

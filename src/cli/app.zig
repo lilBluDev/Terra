@@ -7,6 +7,7 @@ const ntv = @import("../core/helper/nodeTreeVisualizer.zig");
 
 var input = struct {
     visualize_tree: bool = false,
+    debug_token: bool = false,
     run_path: []const u8 = undefined,
 }{};
 
@@ -21,10 +22,16 @@ pub const CliApp = struct {
 
     pub fn start(self: *const CliApp) !void {
         var runArgVsTree = zigCli.Option{
-            .long_name = "vtree",
+            .long_name = "debug-ast",
             .short_alias = 'v',
             .help = "visualize parser output into a nice looking tree.",
             .value_ref = zigCli.mkRef(&input.visualize_tree),
+        };
+
+        var runArgDebugToken = zigCli.Option{
+            .long_name = "debug-token",
+            .help = "shows a debug list of all of the tokens",
+            .value_ref = zigCli.mkRef(&input.debug_token),
         };
 
         var runPArgPath = zigCli.PositionalArg{
@@ -36,7 +43,7 @@ pub const CliApp = struct {
         const runCmd = &zigCli.Command{
             .name = "run",
             .description = zigCli.Description{ .one_line = "run Terra projects/scripts" },
-            .options = &.{&runArgVsTree},
+            .options = &.{ &runArgVsTree, &runArgDebugToken },
             .target = zigCli.CommandTarget{
                 .action = zigCli.CommandAction{
                     .exec = run_cmd,
@@ -92,7 +99,7 @@ fn run_cmd() !void {
         std.debug.print("running {s}\n\n", .{path});
 
         const TerraC = comp.TerraC.init(aloc);
-        const prgm = try TerraC.parseSingle(content, path);
+        const prgm = try TerraC.parseSingle(content, path, input.debug_token);
         defer prgm.deinit(aloc);
 
         if (c.visualize_tree) try ntv.VisualizeNode(prgm, aloc, 0);

@@ -1,15 +1,10 @@
-pub var public := 10;
-var notPublic := 10;    
+const test_struct := struct {
+    x: int,
+    y: int
+};
 
-struct T {
-    a: int,
-    b: float,
-
-    pub fn add(self: T) int {
-        a + b;
-    }
-
-}
-fn subtract(self: T) int {
-    a - b;
-}
+const test_enum := enum {
+    p1,
+    p2,
+    p3
+};

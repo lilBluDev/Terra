@@ -2,8 +2,10 @@ const std = @import("std");
 const lx = @import("../lexer/lexer.zig");
 const tk = @import("../lexer/tokens.zig");
 const ast = @import("./AST.zig");
-const stmt = @import("./stmt.zig");
 const errs = @import("../helper/errors.zig");
+
+pub const expr = @import("./expr.zig");
+pub const stmt = @import("./stmt.zig");
 
 pub const Parser = struct {
     aloc: std.mem.Allocator,

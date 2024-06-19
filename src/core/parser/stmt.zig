@@ -33,14 +33,6 @@ pub fn parsePubStmt(p: *Parser.Parser) !*ast.Node {
             decl.*.FuncDecl.visibility = .Public;
             return decl;
         },
-        .StructDecl => {
-            decl.*.StructDecl.visibility = .Public;
-            return decl;
-        },
-        .EnumDecl => {
-            decl.*.EnumDecl.visibility = .Public;
-            return decl;
-        },
         else => {
             return p.mkNode(ast.Node{ .PublicDecl = .{
                 .decl = decl,
@@ -79,7 +71,6 @@ pub fn parseVarDeclStmt(p: *Parser.Parser) !*ast.Node {
         std.debug.print("a constant variable must have a specified value!", .{});
         std.process.exit(0);
     }
-
     _ = p.expectAndAdvance(.Semicolon);
 
     return p.mkNode(ast.Node{ .VarDecl = .{
@@ -150,70 +141,5 @@ pub fn parseIfStmt(p: *Parser.Parser) !*ast.Node {
         .body = body,
         .alter = alter,
         .loc = p.combineLoc(start.loc, p.prev().loc),
-    } });
-}
-
-pub fn parseEnumStmt(p: *Parser.Parser) !*ast.Node {
-    const start = p.advance();
-    const name = p.expectAndAdvance(.Identifier);
-    var values = std.ArrayListAligned(*ast.Node, null).init(p.aloc);
-    _ = p.expectAndAdvance(.LeftBrace);
-    while (!p.currentToken().is(.RightBrace) and !p.currentToken().is(.EOF)) {
-        const in = p.currentToken();
-        if (std.mem.eql(u8, in.value, "pub")) {
-            const v = try parseStmt(p);
-            try values.append(v);
-        } else {
-            const key = p.expectAndAdvance(.Identifier);
-            try values.append(p.mkNode(ast.Node{
-                .Param = .{ .key = key.value, .value = p.mkNull(), .loc = key.loc },
-            }));
-            if (!p.currentToken().is(.RightBrace) and !p.currentToken().is(.EOF)) {
-                _ = p.expectAndAdvance(.Comma);
-            }
-        }
-    }
-    _ = p.expectAndAdvance(.RightBrace);
-
-    return p.mkNode(ast.Node{ .EnumDecl = .{
-        .name = name.value,
-        .fields = ast.Node.NodesBlock{ .items = values },
-        .loc = p.combineLoc(start.loc, p.prev().loc),
-        .visibility = .Private,
-    } });
-}
-
-pub fn parseStructStmt(p: *Parser.Parser) !*ast.Node {
-    const start = p.advance();
-    const name = p.expectAndAdvance(.Identifier);
-    var values = std.ArrayListAligned(*ast.Node, null).init(p.aloc);
-    _ = p.expectAndAdvance(.LeftBrace);
-    while (!p.currentToken().is(.RightBrace) and !p.currentToken().is(.EOF)) {
-        const in = p.currentToken();
-        if (std.mem.eql(u8, in.value, "pub")) {
-            const v = try parseStmt(p);
-            try values.append(v);
-        } else {
-            const key = p.expectAndAdvance(.Identifier);
-            var v = p.mkNull();
-            if (p.currentToken().is(.Colon)) {
-                _ = p.advance();
-                v = try tlus.parseType(p, .default);
-            }
-            try values.append(p.mkNode(ast.Node{
-                .Param = .{ .key = key.value, .value = v, .loc = p.combineLoc(key.loc, v.*.getLoc()) },
-            }));
-            if (!p.currentToken().is(.RightBrace) and !p.currentToken().is(.EOF)) {
-                _ = p.expectAndAdvance(.Comma);
-            }
-        }
-    }
-    _ = p.expectAndAdvance(.RightBrace);
-
-    return p.mkNode(ast.Node{ .StructDecl = .{
-        .name = name.value,
-        .fields = ast.Node.NodesBlock{ .items = values },
-        .loc = p.combineLoc(start.loc, p.prev().loc),
-        .visibility = .Private,
     } });
 }

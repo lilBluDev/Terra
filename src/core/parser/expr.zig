@@ -4,6 +4,7 @@ const tk = @import("../lexer/tokens.zig");
 const ast = @import("./AST.zig");
 const Parser = @import("./parser.zig");
 const lus = @import("./lookUps.zig");
+const tlus = @import("./typesLus.zig");
 const errs = @import("../helper/errors.zig");
 
 pub fn parseExpr(p: *Parser.Parser, bp: lus.binding_power) !*ast.Node {
@@ -203,6 +204,75 @@ pub fn parseMemberExpr(p: *Parser.Parser, left: *ast.Node, bp: lus.binding_power
         .property = p.expectAndAdvance(.Identifier).value,
         .loc = p.combineLoc(left.getLoc(), p.prev().loc),
     } });
+}
+
+pub fn parseStructDecl(p: *Parser.Parser, bp: lus.binding_power) !*ast.Node {
+    _ = bp;
+
+    const start = p.advance();
+    var values = std.ArrayListAligned(*ast.Node, null).init(p.aloc);
+    _ = p.expectAndAdvance(.LeftBrace);
+    while (!p.currentToken().is(.RightBrace) and !p.currentToken().is(.EOF)) {
+        const in = p.currentToken();
+        if (std.mem.eql(u8, in.value, "pub")) {
+            const v = try Parser.stmt.parseStmt(p);
+            try values.append(v);
+        } else {
+            const key = p.expectAndAdvance(.Identifier);
+            var v = p.mkNull();
+            if (p.currentToken().is(.Colon)) {
+                _ = p.advance();
+                v = try tlus.parseType(p, .default);
+            }
+            try values.append(p.mkNode(ast.Node{
+                .Param = .{ .key = key.value, .value = v, .loc = p.combineLoc(key.loc, v.*.getLoc()) },
+            }));
+            if (!p.currentToken().is(.RightBrace) and !p.currentToken().is(.EOF)) {
+                _ = p.expectAndAdvance(.Comma);
+            }
+        }
+    }
+    _ = p.expectAndAdvance(.RightBrace);
+
+    return p.mkNode(ast.Node{
+        .StructDecl = .{
+            .fields = ast.Node.NodesBlock{ .items = values },
+            .loc = p.combineLoc(start.loc, p.prev().loc),
+        },
+    });
+}
+
+pub fn parseEnumDecl(p: *Parser.Parser, bp: lus.binding_power) !*ast.Node {
+    _ = bp;
+
+    const start = p.advance();
+    var values = std.ArrayListAligned(*ast.Node, null).init(p.aloc);
+    _ = p.expectAndAdvance(.LeftBrace);
+    while (!p.currentToken().is(.RightBrace) and !p.currentToken().is(.EOF)) {
+        const in = p.currentToken();
+        if (std.mem.eql(u8, in.value, "pub")) {
+            const v = try Parser.stmt.parseStmt(p);
+            try values.append(v);
+        } else {
+            const key = p.expectAndAdvance(.Identifier);
+            try values.append(p.mkNode(ast.Node{
+                .Param = .{ .key = key.value, .value = p.mkNull(), .loc = key.loc },
+            }));
+            if (!p.currentToken().is(.RightBrace) and !p.currentToken().is(.EOF)) {
+                _ = p.expectAndAdvance(.Comma);
+            }
+        }
+    }
+    _ = p.expectAndAdvance(.RightBrace);
+
+    return p.mkNode(ast.Node{
+        .EnumDecl = .{
+            // .name = name.value,
+            .fields = ast.Node.NodesBlock{ .items = values },
+            .loc = p.combineLoc(start.loc, p.prev().loc),
+            // .visibility = .Private,
+        },
+    });
 }
 
 pub fn parseCallExpr(p: *Parser.Parser, left: *ast.Node, bp: lus.binding_power) !*ast.Node {

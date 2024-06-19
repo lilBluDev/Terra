@@ -69,7 +69,7 @@ pub fn Init(tag: []const u8, source: []const u8) void {
 fn handleIdent() tk.Token {
     const start_loc = parseHead.loc;
 
-    while (isAlpha(peek() orelse 0) or isDigit(peek() orelse 0)) {
+    while (isAlphaNum(peek() orelse 0) or (peek() orelse 0) == '_') {
         // if (peek() == ' ') break;
         _ = consume();
     }

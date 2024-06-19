@@ -64,15 +64,11 @@ pub const Node = union(enum) {
         loc: tk.loc,
     },
     StructDecl: struct {
-        name: []const u8,
         fields: NodesBlock,
-        visibility: NodeVisibility,
         loc: tk.loc,
     },
     EnumDecl: struct {
-        name: []const u8,
         fields: NodesBlock,
-        visibility: NodeVisibility,
         loc: tk.loc,
     },
 
@@ -203,8 +199,6 @@ pub const Node = union(enum) {
             // Statements
             .VarDecl => |p| return try std.fmt.allocPrint(aloc, "VarDecl: {s} ({})", .{ p.name, p.isConst }),
             .FuncDecl => |p| return try std.fmt.allocPrint(aloc, "FuncDecl: {s}", .{p.name}),
-            .StructDecl => |p| return try std.fmt.allocPrint(aloc, "StructDecl: {s}", .{p.name}),
-            .EnumDecl => |p| return try std.fmt.allocPrint(aloc, "EnumDecl: {s}", .{p.name}),
 
             // Expressions
             .Identifier => |p| return try std.fmt.allocPrint(aloc, "Identifier: {s}", .{p.name}),
