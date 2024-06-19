@@ -73,6 +73,8 @@ pub const Parser = struct {
                 .col = curr.loc.column,
                 .tag = self.lx.tag,
                 .msg = str,
+                .ErrType = "UnexpectedToken",
+                .ErrKind = .Error,
             });
 
             std.process.exit(0);

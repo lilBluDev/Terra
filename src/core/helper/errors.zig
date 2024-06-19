@@ -8,7 +8,20 @@ const ph = @import("../lexer/lexer.zig");
 // [line num]| [line preview]
 //           errExplenation
 
-pub const ErrMsg = struct { tag: []const u8, line: usize, col: usize, msg: []const u8 };
+pub const ErrMsg = struct {
+    tag: []const u8,
+    line: usize,
+    col: usize,
+    msg: ?[]const u8,
+    recommend: ?[]const u8,
+    ErrType: []const u8,
+    ErrKind: enum {
+        Error,
+        Warning,
+        Info,
+        Panic,
+    },
+};
 
 pub fn printErrHead(tag: []const u8, l: usize, c: usize) void {
     comptime var cham = Chameleon.init(.Auto);
@@ -53,19 +66,31 @@ pub fn printErr(err: ErrMsg) void {
     comptime var cham = Chameleon.init(.Auto);
 
     std.debug.print("\n", .{});
-    for (0..40) |i| {
-        _ = i;
-        std.debug.print("=", .{});
-    }
-    std.debug.print("\n", .{});
     printErrHead(err.tag, err.line, err.col);
     printPreviewLine(err.line);
     printErrArrow(err.line, err.col);
-    for (0..40) |i| {
-        _ = i;
-        std.debug.print("=", .{});
+    switch (err.ErrKind) {
+        .Error => std.debug.print(cham.red().fmt("error"), .{}),
+        .Warning => std.debug.print(cham.yellow().fmt("warning"), .{}),
+        .Info => std.debug.print(cham.cyan().fmt("info"), .{}),
+        .Panic => std.debug.print(cham.redBright().fmt("panic"), .{}),
     }
-    std.debug.print("\n\n", .{});
-    std.debug.print(cham.redBright().fmt("Error"), .{});
-    std.debug.print(": {s}\n", .{err.msg});
+    std.debug.print("::{s}()\n", .{err.ErrType});
+    if (err.msg) |msg| {
+        printPadding(3);
+        std.debug.print(cham.cyan().fmt(".message"), .{});
+        std.debug.print(": {s}\n", .{msg});
+    }
+    if (err.recommend) |msg| {
+        printPadding(3);
+        std.debug.print(cham.yellow().fmt(".suggestion"), .{});
+        std.debug.print(": {s}\n", .{msg});
+    }
+}
+
+fn printPadding(size: usize) void {
+    for (0..size) |i| {
+        _ = i;
+        std.debug.print(" ", .{});
+    }
 }

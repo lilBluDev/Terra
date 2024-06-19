@@ -43,7 +43,6 @@ pub const Context = struct {
             .MemberExpr => |member| {
                 return self.whatIs(member.member);
             },
-
             .Literal => |lit| {
                 switch (lit.type) {
                     .Int => {
@@ -62,6 +61,9 @@ pub const Context = struct {
                         return TyVals.mkTypeVal(self.symbols.allocator, TyVals.TypeVal{ .Null = {} });
                     },
                 }
+            },
+            .Param => |param| {
+                return self.whatIs(param.value);
             },
 
             .ArraySymbol => |arraySymbol| return TyVals.mkTypeVal(self.symbols.allocator, TyVals.TypeVal{ .ArraySymbol = .{ .size = arraySymbol.size, .symbol = self.whatIs(arraySymbol.sym) } }),
@@ -117,6 +119,22 @@ pub const Context = struct {
                             .Enum = .{ .items = items },
                         }),
                         .mutable = true,
+                    } })) catch unreachable;
+                },
+
+                .FuncDecl => |funcDecl| {
+                    var params = std.ArrayList(*TyVals.TypeVal).init(self.symbols.allocator);
+                    for (funcDecl.params.items.items) |param| {
+                        params.append(self.whatIs(param)) catch unreachable;
+                    }
+                    std.debug.print("\n{any}\n", .{params.items});
+                    self.symbols.put(funcDecl.name, TyVals.mkTypeVal(self.symbols.allocator, TyVals.TypeVal{ .Symbol = .{
+                        .name = funcDecl.name,
+                        .mutable = true,
+                        .type = TyVals.mkTypeVal(self.symbols.allocator, TyVals.TypeVal{ .Function = .{
+                            .params = params,
+                            .outType = self.whatIs(funcDecl.outType),
+                        } }),
                     } })) catch unreachable;
                 },
 

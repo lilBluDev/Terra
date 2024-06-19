@@ -22,12 +22,32 @@ pub fn parseExprStmt(p: *Parser.Parser) !*ast.Node {
 
 pub fn parsePubStmt(p: *Parser.Parser) !*ast.Node {
     const op = p.advance();
-    const decl = try parseStmt(p);
+    var decl = try parseStmt(p);
 
-    return p.mkNode(ast.Node{ .PublicDecl = .{
-        .decl = decl,
-        .loc = p.combineLoc(op.loc, decl.getLoc()),
-    } });
+    switch (decl.*) {
+        .VarDecl => {
+            decl.*.VarDecl.visibility = .Public;
+            return decl;
+        },
+        .FuncDecl => {
+            decl.*.FuncDecl.visibility = .Public;
+            return decl;
+        },
+        .StructDecl => {
+            decl.*.StructDecl.visibility = .Public;
+            return decl;
+        },
+        .EnumDecl => {
+            decl.*.EnumDecl.visibility = .Public;
+            return decl;
+        },
+        else => {
+            return p.mkNode(ast.Node{ .PublicDecl = .{
+                .decl = decl,
+                .loc = p.combineLoc(op.loc, decl.getLoc()),
+            } });
+        },
+    }
 }
 
 pub fn parseVarDeclStmt(p: *Parser.Parser) !*ast.Node {
@@ -67,6 +87,7 @@ pub fn parseVarDeclStmt(p: *Parser.Parser) !*ast.Node {
         .isConst = isConst,
         .type = ty,
         .value = value,
+        .visibility = .Private,
         .loc = p.combineLoc(op.loc, p.prev().loc),
     } });
 }
@@ -77,11 +98,11 @@ pub fn parseFuncDeclStmt(p: *Parser.Parser) !*ast.Node {
     var params = std.ArrayListAligned(*ast.Node, null).init(p.aloc);
     _ = p.expectAndAdvance(.LeftParen);
     while (!p.currentToken().is(.RightParen) and !p.currentToken().is(.EOF)) {
-        const key = p.expectAndAdvance(.Identifier).value;
+        const key = p.expectAndAdvance(.Identifier);
         _ = p.expectAndAdvance(.Colon);
         const ty = try tlus.parseType(p, .default);
         try params.append(p.mkNode(ast.Node{
-            .Param = .{ .key = key, .value = ty },
+            .Param = .{ .key = key.value, .value = ty, .loc = p.combineLoc(key.loc, ty.*.getLoc()) },
         }));
         if (!p.currentToken().is(.RightParen) and !p.currentToken().is(.EOF)) {
             _ = p.expectAndAdvance(.Comma);
@@ -101,6 +122,7 @@ pub fn parseFuncDeclStmt(p: *Parser.Parser) !*ast.Node {
         .params = ast.Node.NodesBlock{ .items = params },
         .outType = outType,
         .body = block,
+        .visibility = .Private,
         .loc = p.combineLoc(start.loc, p.prev().loc),
     } });
 }
@@ -142,9 +164,9 @@ pub fn parseEnumStmt(p: *Parser.Parser) !*ast.Node {
             const v = try parseStmt(p);
             try values.append(v);
         } else {
-            const key = p.expectAndAdvance(.Identifier).value;
+            const key = p.expectAndAdvance(.Identifier);
             try values.append(p.mkNode(ast.Node{
-                .Param = .{ .key = key, .value = p.mkNull() },
+                .Param = .{ .key = key.value, .value = p.mkNull(), .loc = key.loc },
             }));
             if (!p.currentToken().is(.RightBrace) and !p.currentToken().is(.EOF)) {
                 _ = p.expectAndAdvance(.Comma);
@@ -157,6 +179,7 @@ pub fn parseEnumStmt(p: *Parser.Parser) !*ast.Node {
         .name = name.value,
         .fields = ast.Node.NodesBlock{ .items = values },
         .loc = p.combineLoc(start.loc, p.prev().loc),
+        .visibility = .Private,
     } });
 }
 
@@ -171,14 +194,14 @@ pub fn parseStructStmt(p: *Parser.Parser) !*ast.Node {
             const v = try parseStmt(p);
             try values.append(v);
         } else {
-            const key = p.expectAndAdvance(.Identifier).value;
+            const key = p.expectAndAdvance(.Identifier);
             var v = p.mkNull();
             if (p.currentToken().is(.Colon)) {
                 _ = p.advance();
                 v = try tlus.parseType(p, .default);
             }
             try values.append(p.mkNode(ast.Node{
-                .Param = .{ .key = key, .value = v },
+                .Param = .{ .key = key.value, .value = v, .loc = p.combineLoc(key.loc, v.*.getLoc()) },
             }));
             if (!p.currentToken().is(.RightBrace) and !p.currentToken().is(.EOF)) {
                 _ = p.expectAndAdvance(.Comma);
@@ -191,5 +214,6 @@ pub fn parseStructStmt(p: *Parser.Parser) !*ast.Node {
         .name = name.value,
         .fields = ast.Node.NodesBlock{ .items = values },
         .loc = p.combineLoc(start.loc, p.prev().loc),
+        .visibility = .Private,
     } });
 }

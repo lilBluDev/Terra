@@ -50,7 +50,13 @@ pub const TypeChecker = struct {
                 }
                 return TyVals.mkTypeVal(self.alloc, TyVals.TypeVal{ .Void = {} });
             },
-
+            .Block => |block| {
+                var last: ?*TyVals.TypeVal = null;
+                for (block.body.items.items) |stmt| {
+                    last = self.check(stmt);
+                }
+                if (last) |ty| return ty else return TyVals.mkTypeVal(self.alloc, TyVals.TypeVal{ .Void = {} });
+            },
             .VarDecl => |varDecl| {
                 var VarTy = self.check(varDecl.type);
                 const VarVal = self.check(varDecl.value);
@@ -61,10 +67,12 @@ pub const TypeChecker = struct {
 
                 // TODO: check if the type of the value matches the type of the variable
 
-                const ty = TyVals.mkTypeVal(self.alloc, TyVals.TypeVal{ .VarSymbol = .{
+                const ty = TyVals.mkTypeVal(self.alloc, TyVals.TypeVal{ .Symbol = .{
                     .name = varDecl.name,
-                    .value = VarVal,
-                    .type = VarTy,
+                    .type = TyVals.mkTypeVal(self.alloc, TyVals.TypeVal{ .Variable = .{
+                        .value = VarVal,
+                        .type = VarTy,
+                    } }),
                     .mutable = !varDecl.isConst,
                 } });
                 self.symbols.put(varDecl.name, ty) catch unreachable;
@@ -77,12 +85,6 @@ pub const TypeChecker = struct {
                 var assignto: []const u8 = undefined;
                 var assignable = false;
                 switch (left.*) {
-                    .VarSymbol => |varSymbol| {
-                        if (varSymbol.mutable) {
-                            assignable = true;
-                            assignto = varSymbol.name;
-                        } else assignable = false;
-                    },
                     .Symbol => |symbol| {
                         if (symbol.mutable) {
                             assignable = true;
@@ -97,6 +99,7 @@ pub const TypeChecker = struct {
                             .col = loc.column,
                             .msg = "Cannot assign to this type",
                             .tag = "test",
+                            .ErrKind = .Error,
                         });
                         std.process.exit(0);
                     },
@@ -108,6 +111,7 @@ pub const TypeChecker = struct {
                         .col = loc.column,
                         .msg = "Cannot assign to a immutable variable",
                         .tag = "test",
+                        .ErrKind = .Error,
                     });
                     std.process.exit(0);
                 }
@@ -140,6 +144,16 @@ pub const TypeChecker = struct {
                 }
             },
 
+            .MultiSymbol => |multiSym| {
+                var syms = std.ArrayList(*TyVals.TypeVal).init(self.symbols.allocator);
+                for (multiSym.syms.items.items) |sym| {
+                    syms.append(self.check(sym)) catch unreachable;
+                }
+                return TyVals.mkTypeVal(self.symbols.allocator, TyVals.TypeVal{ .MultiSymbol = .{ .symbols = syms } });
+            },
+            .Param => |param| return self.check(param.value),
+            .ArraySymbol => |arraySymbol| return TyVals.mkTypeVal(self.symbols.allocator, TyVals.TypeVal{ .ArraySymbol = .{ .size = arraySymbol.size, .symbol = self.check(arraySymbol.sym) } }),
+
             // already handled by context
             .Symbol => |sym| return self.resolve(sym.name),
             .Identifier => |ident| return self.resolve(ident.name),
@@ -153,6 +167,7 @@ pub const TypeChecker = struct {
                     .col = loc.column,
                     .tag = "test",
                     .msg = "Type checking not implemented yet for the given node type",
+                    .ErrKind = .Error,
                 });
                 std.process.exit(0);
             },

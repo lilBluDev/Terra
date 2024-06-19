@@ -34,14 +34,14 @@ pub fn VisualizeNode(n: *ast.Node, aloc: std.mem.Allocator, tier: usize) !void {
 
         // Statements
         .VarDecl => |p| {
-            std.debug.print("{s}\n", .{try n.fmt(aloc)});
+            std.debug.print("{s} (visibilty::{s})\n", .{ try n.fmt(aloc), @tagName(p.visibility) });
             try VisualizeNode(@as(*ast.Node, p.type), aloc, tier + 1);
             try VisualizeNode(@as(*ast.Node, p.value), aloc, tier + 1);
         },
         .FuncDecl => |p| {
-            std.debug.print("{s}\n", .{try n.fmt(aloc)});
+            std.debug.print("{s} (visibilty::{s})\n", .{ try n.fmt(aloc), @tagName(p.visibility) });
             printTier(tier + 1);
-            std.debug.print("< Params >\n", .{});
+            std.debug.print("Params:\n", .{});
             for (p.params.items.items) |s| {
                 try VisualizeNode(s, aloc, tier + 2);
             }
@@ -59,7 +59,7 @@ pub fn VisualizeNode(n: *ast.Node, aloc: std.mem.Allocator, tier: usize) !void {
             try VisualizeNode(p.decl, aloc, tier + 1);
         },
         .StructDecl => |p| {
-            std.debug.print("{s}\n", .{try n.fmt(aloc)});
+            std.debug.print("{s} (visibilty::{s})\n", .{ try n.fmt(aloc), @tagName(p.visibility) });
             for (0.., p.fields.items.items) |i, s| {
                 try VisualizeNode(s, aloc, tier + 1);
                 if (i < p.fields.items.items.len - 1) {
@@ -68,7 +68,7 @@ pub fn VisualizeNode(n: *ast.Node, aloc: std.mem.Allocator, tier: usize) !void {
             }
         },
         .EnumDecl => |p| {
-            std.debug.print("{s}\n", .{try n.fmt(aloc)});
+            std.debug.print("{s} (visibilty::{s})\n", .{ try n.fmt(aloc), @tagName(p.visibility) });
             for (p.fields.items.items) |s| {
                 try VisualizeNode(s, aloc, tier + 1);
             }

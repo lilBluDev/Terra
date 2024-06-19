@@ -9,11 +9,13 @@ pub const TypeVal = union(enum) {
     Null: void,
     Void: void,
 
-    VarSymbol: struct {
-        name: []const u8,
+    Function: struct {
+        params: std.ArrayList(*TypeVal),
+        outType: *TypeVal,
+    },
+    Variable: struct {
         value: *TypeVal,
         type: *TypeVal,
-        mutable: bool,
     },
     Symbol: struct {
         name: []const u8,
@@ -55,9 +57,12 @@ pub const TypeVal = union(enum) {
 
     pub fn deinit(self: *TypeVal, aloc: std.mem.Allocator) void {
         switch (self.*) {
-            .VarSymbol => |varSymbol| {
-                varSymbol.type.deinit(aloc);
-                varSymbol.value.deinit(aloc);
+            .Function => |function| {
+                for (function.params.items) |param| param.deinit(aloc);
+            },
+            .Variable => |variable| {
+                variable.type.deinit(aloc);
+                variable.value.deinit(aloc);
             },
             .Symbol => |sym| {
                 sym.type.deinit(aloc);

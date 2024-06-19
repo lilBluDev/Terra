@@ -24,7 +24,7 @@ pub const TerraC = struct {
         const tokens = try lexer.startLexer();
         var parserInst = parser.Parser.init(self.aloc, tokens);
         const prgm = try parserInst.parse(tag);
-        checker.check(self.aloc, prgm);
+        // checker.check(self.aloc, prgm);
         return prgm;
     }
 };

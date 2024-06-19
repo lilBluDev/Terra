@@ -56,6 +56,8 @@ pub fn parseType(p: *Parser.Parser, bp: maps.binding_power) !*ast.Node {
                     .col = p.currentToken().loc.column,
                     .tag = p.lx.tag,
                     .msg = str,
+                    .ErrType = "UnknownNode",
+                    .ErrKind = .Error,
                 });
                 std.process.exit(0);
             }
@@ -77,6 +79,8 @@ pub fn parseType(p: *Parser.Parser, bp: maps.binding_power) !*ast.Node {
             .col = p.currentToken().loc.column,
             .tag = p.lx.tag,
             .msg = str,
+            .ErrType = "UnknownNode",
+            .ErrKind = .Error,
         });
         std.process.exit(0);
     }

@@ -39,7 +39,7 @@ import (
     "./foo/bar/" // looks for "main.tr" file within that directory 
 );
 
-// Process entery
+// Process entry
 pub fn main(args: []str) !void {
     println("Hello World!")
 }

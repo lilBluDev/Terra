@@ -30,6 +30,8 @@ pub fn parseExpr(p: *Parser.Parser, bp: lus.binding_power) !*ast.Node {
                     .col = p.currentToken().loc.column,
                     .tag = p.lx.tag,
                     .msg = str,
+                    .ErrType = "UnknownNode",
+                    .ErrKind = .Error,
                 });
                 std.process.exit(0);
             }
@@ -51,6 +53,8 @@ pub fn parseExpr(p: *Parser.Parser, bp: lus.binding_power) !*ast.Node {
             .col = p.currentToken().loc.column,
             .tag = p.lx.tag,
             .msg = str,
+            .ErrType = "UnknownNode",
+            .ErrKind = .Error,
         });
         std.process.exit(0);
     }
@@ -231,6 +235,7 @@ pub fn parseObjInitExpr(p: *Parser.Parser, left: *ast.Node, bp: lus.binding_powe
         try contents.append(p.mkNode(ast.Node{ .Param = .{
             .key = Pname.value,
             .value = expr,
+            .loc = p.combineLoc(Pname.loc, expr.getLoc()),
         } }));
         if (!p.currentToken().is(.RightBrace) and !p.currentToken().is(.EOF)) _ = p.expectAndAdvance(.Comma);
     }
@@ -248,11 +253,13 @@ pub fn parseArrayInitExpr(p: *Parser.Parser, bp: lus.binding_power) !*ast.Node {
     _ = bp;
     const s = p.expectAndAdvance(.LeftBracket);
     var contents = std.ArrayListAligned(*ast.Node, null).init(p.aloc);
-    while (!p.currentToken().is(.RightBracket) and !p.currentToken().is(.EOF)) {
+    var i: usize = 0;
+    while (!p.currentToken().is(.RightBracket) and !p.currentToken().is(.EOF)) : (i += 1) {
         const expr = try parseExpr(p, .default);
         try contents.append(p.mkNode(ast.Node{ .Param = .{
-            .key = "",
+            .key = std.fmt.allocPrint(p.aloc, "{}", .{i}) catch unreachable,
             .value = expr,
+            .loc = p.combineLoc(s.loc, expr.getLoc()),
         } }));
         if (!p.currentToken().is(.RightBracket) and !p.currentToken().is(.EOF)) _ = p.expectAndAdvance(.Comma);
     }

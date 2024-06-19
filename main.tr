@@ -1,2 +1,15 @@
-const i := 0;
-i = 10;
+pub var public := 10;
+var notPublic := 10;    
+
+struct T {
+    a: int,
+    b: float,
+
+    pub fn add(self: T) int {
+        a + b;
+    }
+
+}
+fn subtract(self: T) int {
+    a - b;
+}

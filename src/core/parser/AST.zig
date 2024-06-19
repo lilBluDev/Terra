@@ -9,6 +9,12 @@ pub const BasicValueTypes = enum {
     Null,
 };
 
+pub const NodeVisibility = enum {
+    Hidden,
+    Public,
+    Private,
+};
+
 pub const Node = union(enum) {
     // Misc
     ProjectTree: struct {
@@ -27,6 +33,7 @@ pub const Node = union(enum) {
     Param: struct {
         key: []const u8,
         value: *Node,
+        loc: tk.loc,
     },
 
     // Statements
@@ -35,6 +42,7 @@ pub const Node = union(enum) {
         isConst: bool,
         type: *Node,
         value: *Node,
+        visibility: NodeVisibility,
         loc: tk.loc,
     },
     FuncDecl: struct {
@@ -42,6 +50,7 @@ pub const Node = union(enum) {
         params: NodesBlock,
         outType: *Node,
         body: *Node,
+        visibility: NodeVisibility,
         loc: tk.loc,
     },
     IfStmt: struct {
@@ -57,11 +66,13 @@ pub const Node = union(enum) {
     StructDecl: struct {
         name: []const u8,
         fields: NodesBlock,
+        visibility: NodeVisibility,
         loc: tk.loc,
     },
     EnumDecl: struct {
         name: []const u8,
         fields: NodesBlock,
+        visibility: NodeVisibility,
         loc: tk.loc,
     },
 

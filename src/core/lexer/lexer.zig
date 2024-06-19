@@ -154,6 +154,8 @@ fn handleString() !tk.Token {
                 .col = start_loc.column,
                 .tag = parseHead.tag,
                 .msg = "Unterminated string found",
+                .ErrType = "UnterminatedString",
+                .ErrKind = .Error,
             });
             std.process.exit(0);
         }
@@ -165,6 +167,8 @@ fn handleString() !tk.Token {
             .col = start_loc.column,
             .tag = parseHead.tag,
             .msg = "Unterminated string found",
+            .ErrType = "UnterminatedString",
+            .ErrKind = .Error,
         });
         std.process.exit(0);
     } else {
