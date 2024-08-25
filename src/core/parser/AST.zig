@@ -71,6 +71,10 @@ pub const Node = union(enum) {
         fields: NodesBlock,
         loc: tk.loc,
     },
+    ReturnStmt: struct {
+        n: *Node,
+        loc: tk.loc,
+    },
 
     // Expressions
     Null: struct {},
@@ -181,6 +185,7 @@ pub const Node = union(enum) {
             .Symbol => |p| return p.loc,
             .MultiSymbol => |p| return p.loc,
             .ArraySymbol => |p| return p.loc,
+            .ReturnStmt => |p| return p.loc,
             else => return tk.loc{
                 .line = 0,
                 .column = 0,
@@ -218,6 +223,12 @@ pub const Node = union(enum) {
     pub fn isNull(self: *const Node) bool {
         switch (self.*) {
             .Null => return true,
+            else => return false,
+        }
+    }
+    pub fn isLiterals(self: *const Node) bool {
+        switch (self.*) {
+            .Literal => return true,
             else => return false,
         }
     }
@@ -262,6 +273,9 @@ pub const Node = union(enum) {
             },
             .EnumDecl => |p| {
                 p.fields.deinit(aloc);
+            },
+            .ReturnStmt => |p| {
+                p.n.deinit(aloc);
             },
 
             // Expressions

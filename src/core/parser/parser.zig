@@ -77,6 +77,7 @@ pub const Parser = struct {
                 .msg = str,
                 .ErrType = "UnexpectedToken",
                 .ErrKind = .Error,
+                .previewLookBack = null,
             });
 
             std.process.exit(0);

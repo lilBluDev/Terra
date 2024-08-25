@@ -63,6 +63,7 @@ pub fn parseVarDeclStmt(p: *Parser.Parser) !*ast.Node {
             .tag = p.lx.tag,
             .line = curr.loc.line,
             .col = curr.loc.column,
+            .previewLookBack = null,
         });
         std.process.exit(0);
     } else if (ty.isNull() and curr.is(.Equals)) {
@@ -73,6 +74,7 @@ pub fn parseVarDeclStmt(p: *Parser.Parser) !*ast.Node {
             .tag = p.lx.tag,
             .line = curr.loc.line,
             .col = curr.loc.column,
+            .previewLookBack = null,
         });
         std.process.exit(0);
     }
@@ -91,6 +93,7 @@ pub fn parseVarDeclStmt(p: *Parser.Parser) !*ast.Node {
             .tag = p.lx.tag,
             .line = curr.loc.line,
             .col = curr.loc.column,
+            .previewLookBack = null,
         });
         std.process.exit(0);
     }
@@ -164,5 +167,32 @@ pub fn parseIfStmt(p: *Parser.Parser) !*ast.Node {
         .body = body,
         .alter = alter,
         .loc = p.combineLoc(start.loc, p.prev().loc),
+    } });
+}
+
+pub fn parseReturnStmt(p: *Parser.Parser) !*ast.Node {
+    const start = p.advance();
+    var n: *ast.Node = undefined;
+
+    if (p.currentToken().is(tk.TokenType.Semicolon)) {
+        _ = p.advance();
+        n = p.mkNull();
+    } else if (!p.currentToken().is(tk.TokenType.Semicolon)) {
+        n = try parseExprStmt(p);
+    } else {
+        errs.printErr(errs.ErrMsg{
+            .tag = p.lx.tag,
+            .ErrKind = .Error,
+            .ErrType = "MissingExpression",
+            .line = p.currentToken().loc.line,
+            .col = p.currentToken().loc.column,
+            .msg = "expression or a semicolon was expected after a return statement",
+            .previewLookBack = null,
+        });
+    }
+
+    return p.mkNode(ast.Node{ .ReturnStmt = .{
+        .n = n,
+        .loc = p.combineLoc(start.loc, n.getLoc()),
     } });
 }

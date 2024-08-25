@@ -17,7 +17,7 @@ pub fn parseExpr(p: *Parser.Parser, bp: lus.binding_power) !*ast.Node {
             if (lus.atomic_lu.get(p.currentTokenType())) |atomicHandler| {
                 left = try atomicHandler(p, left, bp);
             } else {
-                const str = std.fmt.allocPrint(std.heap.page_allocator, "No Atomic handler for {}", .{p.currentTokenType()}) catch |err| {
+                const str = std.fmt.allocPrint(std.heap.page_allocator, "No Atomic handler for {}, or missing semicolon!", .{p.currentTokenType()}) catch |err| {
                     if (err == std.fmt.AllocPrintError.OutOfMemory) {
                         std.debug.print("Failed to print!\n", .{});
                         std.process.exit(0);
@@ -33,6 +33,7 @@ pub fn parseExpr(p: *Parser.Parser, bp: lus.binding_power) !*ast.Node {
                     .msg = str,
                     .ErrType = "UnknownNode",
                     .ErrKind = .Error,
+                    .previewLookBack = 2,
                 });
                 std.process.exit(0);
             }
@@ -40,7 +41,7 @@ pub fn parseExpr(p: *Parser.Parser, bp: lus.binding_power) !*ast.Node {
 
         return left;
     } else {
-        const str = std.fmt.allocPrint(std.heap.page_allocator, "No infix handler for {}", .{p.currentTokenType()}) catch |err| {
+        const str = std.fmt.allocPrint(std.heap.page_allocator, "No infix handler for {}, or missing semicolon!", .{p.currentTokenType()}) catch |err| {
             if (err == std.fmt.AllocPrintError.OutOfMemory) {
                 std.debug.print("Failed to print!\n", .{});
                 std.process.exit(0);
@@ -56,6 +57,7 @@ pub fn parseExpr(p: *Parser.Parser, bp: lus.binding_power) !*ast.Node {
             .msg = str,
             .ErrType = "UnknownNode",
             .ErrKind = .Error,
+            .previewLookBack = 2,
         });
         std.process.exit(0);
     }

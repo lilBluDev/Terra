@@ -30,9 +30,9 @@ pub fn check(aloc: std.mem.Allocator, n: *ast.Node) void {
 
     var final = checker.check(n);
 
-    std.debug.print("Result: ", .{});
+    std.debug.print("Result: \n", .{});
     for (checker.symbols.keys(), checker.symbols.values()) |key, item| {
-        std.debug.print("\n{s} -> {any}\n", .{ key, item });
+        std.debug.print("\n{s} -> {any}", .{ key, item });
     }
     // std.debug.print("\n", .{});
 

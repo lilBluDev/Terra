@@ -97,4 +97,5 @@ pub fn loadLUs() void {
     stmt(.Fn, stmts.parseFuncDeclStmt);
     stmt(.If, stmts.parseIfStmt);
     stmt(.Pub, stmts.parsePubStmt);
+    stmt(.Return, stmts.parseReturnStmt);
 }

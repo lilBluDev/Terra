@@ -156,6 +156,7 @@ fn handleString() !tk.Token {
                 .msg = "Unterminated string found",
                 .ErrType = "UnterminatedString",
                 .ErrKind = .Error,
+                .previewLookBack = null,
             });
             std.process.exit(0);
         }
@@ -169,6 +170,7 @@ fn handleString() !tk.Token {
             .msg = "Unterminated string found",
             .ErrType = "UnterminatedString",
             .ErrKind = .Error,
+            .previewLookBack = null,
         });
         std.process.exit(0);
     } else {

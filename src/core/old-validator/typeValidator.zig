@@ -99,6 +99,7 @@ pub const TypeChecker = struct {
                             .col = loc.column,
                             .msg = "Cannot assign to this type",
                             .tag = "test",
+                            .ErrType = "InvalidAssignment",
                             .ErrKind = .Error,
                         });
                         std.process.exit(0);
@@ -111,6 +112,7 @@ pub const TypeChecker = struct {
                         .col = loc.column,
                         .msg = "Cannot assign to a immutable variable",
                         .tag = "test",
+                        .ErrType = "InvalidAssignment",
                         .ErrKind = .Error,
                     });
                     std.process.exit(0);
@@ -157,8 +159,6 @@ pub const TypeChecker = struct {
             // already handled by context
             .Symbol => |sym| return self.resolve(sym.name),
             .Identifier => |ident| return self.resolve(ident.name),
-            .StructDecl => |structDecl| return self.resolve(structDecl.name),
-            .EnumDecl => |enumDecl| return self.resolve(enumDecl.name),
 
             else => {
                 const loc = n.getLoc();
@@ -167,6 +167,7 @@ pub const TypeChecker = struct {
                     .col = loc.column,
                     .tag = "test",
                     .msg = "Type checking not implemented yet for the given node type",
+                    .ErrType = "UnknownType",
                     .ErrKind = .Error,
                 });
                 std.process.exit(0);

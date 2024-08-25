@@ -6,12 +6,12 @@ Terra is made to be a drop-in easy to use and fast interpreted programming langu
 
 > ⚠ NOTE <Br>
 > TERRA HAS ONLY BEEN TESTED IN WINDOWS <Br>
-> REQUIRED ZIG VERSION: 0.11.0^
+> REQUIRED ZIG VERSION: 0.13.0^
 
 ```bash
 git clone https://github.com/lilBluDev/Terra
 cd Terra
-zig run src/main --
+zig build run src/main --
 ```
 
 or you can use the pre-built exe!

@@ -87,6 +87,7 @@ pub const TokenType = enum {
     Iter,
     Import,
     Pub,
+    Return,
 
     //Reserved Type Keywords
     TrueKeyword,
@@ -94,7 +95,7 @@ pub const TokenType = enum {
     NullKeyword,
 };
 
-pub const str_to_roken_type_lu = std.ComptimeStringMap(TokenType, .{
+pub const str_to_roken_type_lu = std.StaticStringMap(TokenType).initComptime(.{
     .{ "(", TokenType.LeftParen },
     .{ ")", TokenType.RightParen },
     .{ "{", TokenType.LeftBrace },
@@ -155,12 +156,13 @@ pub const str_to_roken_type_lu = std.ComptimeStringMap(TokenType, .{
     .{ "iter", TokenType.Iter },
     .{ "import", TokenType.Import },
     .{ "pub", TokenType.Pub },
+    .{ "return", TokenType.Return },
     .{ "true", TokenType.TrueKeyword },
     .{ "false", TokenType.FalseKeyword },
     .{ "null", TokenType.NullKeyword },
 });
 
-pub const single_operator_lu = std.ComptimeStringMap(TokenType, .{
+pub const single_operator_lu = std.StaticStringMap(TokenType).initComptime(.{
     .{ "+", TokenType.Plus },
     .{ "-", TokenType.Minus },
     .{ "*", TokenType.Star },
@@ -185,7 +187,7 @@ pub const single_operator_lu = std.ComptimeStringMap(TokenType, .{
     .{ "]", TokenType.RightBracket },
 });
 
-pub const double_opreator_lu = std.ComptimeStringMap(TokenType, .{
+pub const double_opreator_lu = std.StaticStringMap(TokenType).initComptime(.{
     .{ "//", TokenType.Comment },
     .{ "+=", TokenType.PlusEquals },
     .{ "-=", TokenType.MinusEquals },
@@ -207,7 +209,7 @@ pub const double_opreator_lu = std.ComptimeStringMap(TokenType, .{
     .{ "->", TokenType.Arrow },
 });
 
-pub const reserved_lu = std.ComptimeStringMap(TokenType, .{
+pub const reserved_lu = std.StaticStringMap(TokenType).initComptime(.{
     .{ "var", TokenType.Var },
     .{ "const", TokenType.Const },
     .{ "fn", TokenType.Fn },
@@ -227,6 +229,7 @@ pub const reserved_lu = std.ComptimeStringMap(TokenType, .{
     .{ "iter", TokenType.Iter },
     .{ "import", TokenType.Import },
     .{ "pub", TokenType.Pub },
+    .{ "return", TokenType.Return },
     .{ "true", TokenType.TrueKeyword },
     .{ "false", TokenType.FalseKeyword },
     .{ "null", TokenType.NullKeyword },
@@ -273,7 +276,7 @@ pub fn TokenType2String(tkt: TokenType) []const u8 {
         .MinusMinus => return "--",
         .Arrow => return "->",
         .Walrus => return ":=",
-        .EOF => return "End OF File",
+        .EOF => return "End Of File",
 
         else => |t| return @tagName(t),
     }

@@ -8,10 +8,20 @@ pub fn build(b: *std.Build) void {
     const optimize = b.standardOptimizeOption(.{});
     const exe = b.addExecutable(.{
         .name = "terra",
-        .root_source_file = .{ .path = "src/main.zig" },
+        .root_source_file = .{ .src_path = .{
+            .owner = b,
+            .sub_path = "src/main.zig",
+        } },
         .target = target,
         .optimize = optimize,
     });
+
+    const string_dep = b.dependency("string", .{
+        .target = target,
+        .optimize = optimize,
+    });
+    exe.root_module.addImport("string", string_dep.module("string"));
+
     b.installArtifact(exe);
 
     const run_cmd = b.addRunArtifact(exe);
@@ -23,10 +33,14 @@ pub fn build(b: *std.Build) void {
     }
 
     const run_step = b.step("run", "Run the app");
+
     run_step.dependOn(&run_cmd.step);
 
     const exe_unit_tests = b.addTest(.{
-        .root_source_file = .{ .path = "src/main.zig" },
+        .root_source_file = .{ .src_path = .{
+            .owner = b,
+            .sub_path = "src/main.zig",
+        } },
         .target = target,
         .optimize = optimize,
     });

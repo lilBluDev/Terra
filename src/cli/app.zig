@@ -23,7 +23,6 @@ pub const CliApp = struct {
     pub fn start(self: *const CliApp) !void {
         var runArgVsTree = zigCli.Option{
             .long_name = "debug-ast",
-            .short_alias = 'v',
             .help = "visualize parser output into a nice looking tree.",
             .value_ref = zigCli.mkRef(&input.visualize_tree),
         };

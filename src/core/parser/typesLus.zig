@@ -58,6 +58,7 @@ pub fn parseType(p: *Parser.Parser, bp: maps.binding_power) !*ast.Node {
                     .msg = str,
                     .ErrType = "UnknownNode",
                     .ErrKind = .Error,
+                    .previewLookBack = null,
                 });
                 std.process.exit(0);
             }
@@ -81,6 +82,7 @@ pub fn parseType(p: *Parser.Parser, bp: maps.binding_power) !*ast.Node {
             .msg = str,
             .ErrType = "UnknownNode",
             .ErrKind = .Error,
+            .previewLookBack = null,
         });
         std.process.exit(0);
     }

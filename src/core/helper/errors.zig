@@ -13,6 +13,7 @@ pub const ErrMsg = struct {
     line: usize,
     col: usize,
     msg: ?[]const u8,
+    previewLookBack: ?usize,
     // recommend: ?[]const u8,
     ErrType: []const u8,
     ErrKind: enum {
@@ -29,18 +30,29 @@ pub fn printErrHead(tag: []const u8, l: usize, c: usize) void {
     std.debug.print(cham.gray().fmt("({s}) [{}::{}]\n"), .{ tag, l, c });
 }
 
-pub fn printPreviewLine(line: usize) void {
+pub fn printPreviewLine(line: usize, plb_size: usize) void {
     comptime var cham = Chameleon.init(.Auto);
-    std.debug.print(cham.cyan().fmt("{} | "), .{line});
 
-    var line_prev: []const u8 = undefined;
+    // var line_prev: []const u8 = undefined;
 
     var iter = std.mem.splitSequence(u8, ph.parseHead.original, "\n");
+    var i: usize = 1;
     while (iter.next()) |lin| {
-        line_prev = lin;
+        if (i > (line - plb_size) and i != line) {
+            std.debug.print(cham.cyan().fmt("{} | "), .{i});
+            std.debug.print("{s}\n", .{lin});
+        }
+        if (i == line) {
+            std.debug.print(cham.cyan().fmt("{} | "), .{line});
+            std.debug.print("{s}\n", .{lin});
+            break;
+        }
+        i += 1;
     }
 
-    std.debug.print("{s}\n", .{line_prev});
+    i = 1;
+
+    // std.debug.print("\nlookback line start: {}", .{line - plb_size});
 }
 
 pub fn printErrArrow(line: usize, col: usize) void {
@@ -65,9 +77,9 @@ pub fn printErrArrow(line: usize, col: usize) void {
 pub fn printErr(err: ErrMsg) void {
     comptime var cham = Chameleon.init(.Auto);
 
-    std.debug.print("\n", .{});
+    // std.debug.print("\n", .{});
     printErrHead(err.tag, err.line, err.col);
-    printPreviewLine(err.line);
+    printPreviewLine(err.line, err.previewLookBack orelse 1);
     printErrArrow(err.line, err.col);
     switch (err.ErrKind) {
         .Error => std.debug.print(cham.red().fmt("error"), .{}),

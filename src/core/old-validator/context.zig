@@ -78,50 +78,6 @@ pub const Context = struct {
     pub fn search(self: *Context, block: ast.Node.NodesBlock) !void {
         for (block.items.items) |node| {
             switch (node.*) {
-                .StructDecl => |decl| {
-                    var items = std.StringArrayHashMap(*TyVals.TypeVal).init(self.symbols.allocator);
-
-                    for (decl.fields.items.items) |field| {
-                        switch (field.*) {
-                            .Param => |param| {
-                                const ty = self.whatIs(param.value);
-                                items.put(param.key, ty) catch unreachable;
-                            },
-
-                            else => {},
-                        }
-                    }
-
-                    self.symbols.put(decl.name, TyVals.mkTypeVal(self.symbols.allocator, TyVals.TypeVal{ .Symbol = .{
-                        .name = decl.name,
-                        .type = TyVals.mkTypeVal(self.symbols.allocator, TyVals.TypeVal{
-                            .Struct = .{ .items = items },
-                        }),
-                        .mutable = true,
-                    } })) catch unreachable;
-                },
-
-                .EnumDecl => |decl| {
-                    var items = std.StringArrayHashMap(*TyVals.TypeVal).init(self.symbols.allocator);
-                    for (0.., decl.fields.items.items) |i, field| {
-                        switch (field.*) {
-                            .Param => |param| {
-                                const ty = TyVals.mkTypeVal(self.symbols.allocator, TyVals.TypeVal{ .Int = i });
-                                items.put(param.key, ty) catch unreachable;
-                            },
-                            else => {},
-                        }
-                    }
-
-                    self.symbols.put(decl.name, TyVals.mkTypeVal(self.symbols.allocator, TyVals.TypeVal{ .Symbol = .{
-                        .name = decl.name,
-                        .type = TyVals.mkTypeVal(self.symbols.allocator, TyVals.TypeVal{
-                            .Enum = .{ .items = items },
-                        }),
-                        .mutable = true,
-                    } })) catch unreachable;
-                },
-
                 .FuncDecl => |funcDecl| {
                     var params = std.ArrayList(*TyVals.TypeVal).init(self.symbols.allocator);
                     for (funcDecl.params.items.items) |param| {

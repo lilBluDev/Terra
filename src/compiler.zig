@@ -1,8 +1,8 @@
 const std = @import("std");
 const lexer = @import("./core/lexer/lexer.zig");
-// const new_lexer = @import("./core/lexer/nLexer.zig").ParseHead;
+const TKVisualizer = @import("./core/helper/TokenVisualizer.zig").VisualizeToken;
 const parser = @import("./core/parser/parser.zig");
-const checker = @import("./core/validator/checker.zig");
+const checker = @import("./core/validator/typechecker.zig");
 const LUs = @import("./core/parser/lookUps.zig");
 const TLUs = @import("./core/parser/typesLus.zig");
 const ntv = @import("./core/helper/nodeTreeVisualizer.zig");
@@ -23,10 +23,10 @@ pub const TerraC = struct {
         lexer.Init(tag, source);
         const tokens = try lexer.startLexer();
         if (DBToken)
-            std.debug.print("{any}", .{tokens.items});
+            try TKVisualizer(tokens);
         var parserInst = parser.Parser.init(self.aloc, tokens);
         const prgm = try parserInst.parse(tag);
-        // checker.check(self.aloc, prgm);
+        checker.checkProgram(prgm, self.aloc);
         return prgm;
     }
 };

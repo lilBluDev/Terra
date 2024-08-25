@@ -2,9 +2,9 @@
     .name = "Terra",
     .version = "0.0.0",
     .dependencies = .{
-        .@"zig-cli" = .{
-            .url = "https://github.com/sam701/zig-cli/archive/refs/tags/last-working-with-zig-0.11.tar.gz",
-            .hash = "12209bf5ef5ea0a5832797fabe65efadc63deb5af3178309ecf7b03a67aabfdbbfae",
+        .string = .{
+            .url = "https://github.com/JakubSzark/zig-string/archive/refs/heads/master.tar.gz",
+            .hash = "12208fa7e4afc8a9c2b267f034d4d7b69952ac5bf39e48449e0a54dcbaae2309f54e",
         },
     },
     .paths = .{
