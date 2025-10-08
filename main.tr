@@ -1,0 +1,13 @@
+// Comments are ignored by the tokenizer
+
+import "std";
+import "std:println";
+import (
+    "./foo/bar/test.tr", // import all visible exports from that file
+    "./foo/bar/" // looks for "main.tr" file within that directory 
+);
+
+// Process entry
+pub fn main(args: []str) !void {
+    println("Hello World!");
+}

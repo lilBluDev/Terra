@@ -169,6 +169,8 @@ pub fn checkProgram(prgm: *ast.Node, alloc: std.mem.Allocator) void {
     _ = Checker.registerType("bool", Types{ .Bool = "" });
     _ = Checker.registerType("str", Types{ .Str = "" });
     _ = Checker.registerType("null", Types{ .Null = 0 });
+    _ = Checker.registerType("any", Types{ .Null = 0 });
+    _ = Checker.registerType("anyerr", Types{ .Null = 0 });
     _ = Checker.registerType("void", Types{ .Void = 0 });
 
     for (prgm.*.Program.body.items.items) |n| {
@@ -179,6 +181,12 @@ pub fn checkProgram(prgm: *ast.Node, alloc: std.mem.Allocator) void {
 pub fn check(node: *ast.Node, checker: *TypeChecker, alloc: std.mem.Allocator) *Types {
     switch (node.*) {
         .Null => return checker.get("null"),
+        // .ImportStmt => |n| {
+        //     for (n.imports.items.items) |i| {
+        //         // i.Literal
+        //         _ = i;
+        //     }
+        // },
         .VarDecl => |n| {
             checker.matchErr(n.type, n.value);
 
@@ -189,6 +197,9 @@ pub fn check(node: *ast.Node, checker: *TypeChecker, alloc: std.mem.Allocator) *
             _ = checker.noMkRegisterValType(n.name, infered);
             return checker.noMkRegisterType(n.name, val);
         },
+        // .FuncDecl => |n| {
+        //     _ = n;
+        // },
         .AssignmentExpr => |n| {
             const assignee = checker.diter(n.lhs);
             const val = check(n.rhs, checker, alloc);
@@ -301,7 +312,6 @@ pub fn check(node: *ast.Node, checker: *TypeChecker, alloc: std.mem.Allocator) *
 
             return checker.get(n.name);
         },
-
         .MultiSymbol => |n| {
             var arr = std.ArrayList(*Types).init(alloc);
             for (n.syms.items.items) |s| {
@@ -309,7 +319,6 @@ pub fn check(node: *ast.Node, checker: *TypeChecker, alloc: std.mem.Allocator) *
             }
             return checker.mkType(Types{ .MultiSymbol = .{ .symbols = arr.clone() catch unreachable } });
         },
-
         else => {
             return checker.get("null");
         },

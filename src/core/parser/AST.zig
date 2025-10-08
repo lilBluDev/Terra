@@ -75,6 +75,10 @@ pub const Node = union(enum) {
         n: *Node,
         loc: tk.loc,
     },
+    ImportStmt: struct {
+        imports: NodesBlock,
+        loc: tk.loc,
+    },
 
     // Expressions
     Null: struct {},
@@ -134,6 +138,13 @@ pub const Node = union(enum) {
     },
 
     // Types
+    AnyType: struct {},
+    AnyError: struct {},
+    CanErr: struct {
+        errType: *Node,
+        sym: *Node,
+        loc: tk.loc,
+    },
     Symbol: struct {
         name: []const u8,
         loc: tk.loc,
@@ -186,6 +197,8 @@ pub const Node = union(enum) {
             .MultiSymbol => |p| return p.loc,
             .ArraySymbol => |p| return p.loc,
             .ReturnStmt => |p| return p.loc,
+            .ImportStmt => |p| return p.loc,
+            .CanErr => |p| return p.loc,
             else => return tk.loc{
                 .line = 0,
                 .column = 0,
@@ -277,6 +290,9 @@ pub const Node = union(enum) {
             .ReturnStmt => |p| {
                 p.n.deinit(aloc);
             },
+            .ImportStmt => |p| {
+                p.imports.deinit(aloc);
+            },
 
             // Expressions
             .AssignmentExpr => |p| {
@@ -315,6 +331,10 @@ pub const Node = union(enum) {
             // Types
             .MultiSymbol => |p| {
                 p.syms.deinit(aloc);
+            },
+            .CanErr => |p| {
+                p.errType.deinit(aloc);
+                p.sym.deinit(aloc);
             },
 
             else => {},

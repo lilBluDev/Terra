@@ -218,7 +218,6 @@ pub const tokensList = std.ArrayListAligned(tk.Token, null);
 
 pub fn startLexer() !std.ArrayListAligned(tk.Token, null) {
     var tokens = std.ArrayList(tk.Token).init(page_allocator);
-    // defer tokens.deinit();
 
     while (peek()) |c| {
         parseHead.start = parseHead.source;

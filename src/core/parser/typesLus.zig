@@ -27,9 +27,11 @@ pub fn loadLUs() void {
     infix(.Identifier, parseSymbol);
     infix(.LeftBracket, parseArraySymbol);
     infix(.LeftParen, parseMultiSymbol);
+    infix(.Exclamation, parseInfixCanErr);
 
     atomic(.Dot, .member, expr.parseMemberExpr);
     atomic(.LeftBracket, .member, expr.parseMemberExpr);
+    atomic(.Exclamation, .member, parseAtomicCanErr);
 }
 
 pub fn parseType(p: *Parser.Parser, bp: maps.binding_power) !*ast.Node {
@@ -132,4 +134,21 @@ fn parseArraySymbol(p: *Parser.Parser, bp: maps.binding_power) !*ast.Node {
         .loc = p.combineLoc(s.loc, sym.getLoc()),
         .size = size,
     } });
+}
+
+fn parseAtomicCanErr(p: *Parser.Parser, left: *ast.Node, bp: maps.binding_power) !*ast.Node {
+    _ = p.expectAndAdvance(.Exclamation);
+    _ = bp;
+    const expected_type = try parseType(p, .default);
+
+    return p.mkNode(ast.Node{ .CanErr = .{ .errType = left, .sym = expected_type, .loc = p.combineLoc(left.getLoc(), expected_type.getLoc()) } });
+}
+
+fn parseInfixCanErr(p: *Parser.Parser, bp: maps.binding_power) !*ast.Node {
+    const start = p.expectAndAdvance(.Exclamation);
+    _ = bp;
+
+    const expected_type = try parseType(p, .default);
+
+    return p.mkNode(ast.Node{ .CanErr = .{ .errType = p.mkAnyError(), .sym = expected_type, .loc = p.combineLoc(start.loc, expected_type.getLoc()) } });
 }

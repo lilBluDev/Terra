@@ -33,7 +33,7 @@ pub fn main() !void {
             var buffer: [1024]u8 = undefined;
 
             if (try stdin.readUntilDelimiterOrEof(buffer[0..], '\n')) |out| {
-                const line = out[0 .. out.len - 1];
+                const line = out[0..out.len];
                 if (std.mem.eql(u8, line, "exit")) {
                     std.debug.print("exiting...", .{});
                     break;

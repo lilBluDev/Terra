@@ -227,7 +227,11 @@ pub fn parseStructDecl(p: *Parser.Parser, bp: lus.binding_power) !*ast.Node {
                 v = try tlus.parseType(p, .default);
             }
             try values.append(p.mkNode(ast.Node{
-                .Param = .{ .key = key.value, .value = v, .loc = p.combineLoc(key.loc, v.*.getLoc()) },
+                .Param = .{
+                    .key = key.value,
+                    .value = v,
+                    .loc = p.combineLoc(key.loc, v.*.getLoc()),
+                },
             }));
             if (!p.currentToken().is(.RightBrace) and !p.currentToken().is(.EOF)) {
                 _ = p.expectAndAdvance(.Comma);
@@ -338,4 +342,31 @@ pub fn parseArrayInitExpr(p: *Parser.Parser, bp: lus.binding_power) !*ast.Node {
     _ = p.expectAndAdvance(.RightBracket);
 
     return p.mkNode(ast.Node{ .ArrayInit = .{ .contents = ast.Node.NodesBlock{ .items = contents }, .loc = tk.loc{ .line = s.loc.line, .column = s.loc.column, .end_line = p.prev().loc.end_line, .end_col = p.prev().loc.end_col } } });
+}
+
+pub fn parseImportStmt(p: *Parser.Parser, bp: lus.binding_power) !*ast.Node {
+    _ = bp;
+    const start = p.advance();
+    var imports = std.ArrayListAligned(*ast.Node, null).init(p.aloc);
+    var end = p.mkNull();
+
+    if (p.currentToken().is(tk.TokenType.StringLit)) {
+        const content = try parsePrimary(p, .primary);
+        try imports.append(content);
+        end = content;
+    } else if (p.currentToken().is(tk.TokenType.LeftParen)) {
+        _ = p.advance();
+        while (!p.currentToken().is(.RightParen) and !p.currentToken().is(.EOF)) {
+            const content = try parsePrimary(p, .primary);
+            try imports.append(content);
+            end = content;
+            if (!p.currentToken().is(.RightParen) and !p.currentToken().is(.EOF)) _ = p.expectAndAdvance(.Comma);
+        }
+        _ = p.expectAndAdvance(tk.TokenType.RightParen);
+    }
+
+    return p.mkNode(ast.Node{ .ImportStmt = .{
+        .imports = ast.Node.NodesBlock{ .items = imports },
+        .loc = p.combineLoc(start.loc, end.getLoc()),
+    } });
 }

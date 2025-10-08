@@ -30,6 +30,18 @@ pub const Parser = struct {
         return n;
     }
 
+    pub fn mkAnyType(self: *Parser) *ast.Node {
+        const n = self.aloc.create(ast.Node) catch unreachable;
+        n.* = ast.Node{ .AnyType = .{} };
+        return n;
+    }
+
+    pub fn mkAnyError(self: *Parser) *ast.Node {
+        const n = self.aloc.create(ast.Node) catch unreachable;
+        n.* = ast.Node{ .AnyError = .{} };
+        return n;
+    }
+
     pub fn advance(self: *Parser) tk.Token {
         const tkn = self.tks.items[self.pos];
         self.pos += 1;

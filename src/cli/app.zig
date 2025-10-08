@@ -85,20 +85,10 @@ fn run_cmd() !void {
     // std.debug.print("{s}", .{c.run_path[c.run_path.len - 3 .. c.run_path.len]});
 
     if (std.mem.eql(u8, c.run_path[c.run_path.len - 3 .. c.run_path.len], ".tr")) {
-        const file = std.fs.cwd().openFile(c.*.run_path, .{}) catch |er| {
-            if (er == std.fs.File.OpenError.FileNotFound) {
-                std.debug.print("File Not Found!\n", .{});
-            } else {
-                std.debug.print("Unable to run file!", .{});
-            }
-            std.process.exit(0);
-        };
-        const content = try fsH.getFileContents(aloc, file);
         const path = try std.fs.cwd().realpathAlloc(aloc, c.run_path);
-        std.debug.print("running {s}\n\n", .{path});
 
         const TerraC = comp.TerraC.init(aloc);
-        const prgm = try TerraC.parseSingle(content, path, input.debug_token);
+        const prgm = try TerraC.parseFile(path, input.debug_token);
         defer prgm.deinit(aloc);
 
         if (c.visualize_tree) try ntv.VisualizeNode(prgm, aloc, 0);

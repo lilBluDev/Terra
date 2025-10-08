@@ -1,0 +1,5 @@
+.qodo/
+.zig-cache/
+managed_context/
+test_suite_context/
+zig_out/

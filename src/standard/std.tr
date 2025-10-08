@@ -1,0 +1,3 @@
+pub fn println(str: str) void {
+    process.stdout.print(str);
+} 

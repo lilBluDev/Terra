@@ -53,6 +53,7 @@ pub fn loadLUs() void {
 
     infix(.Struct, expr.parseStructDecl);
     infix(.Enum, expr.parseEnumDecl);
+    infix(.Import, expr.parseImportStmt);
 
     infix(.LeftParen, expr.parseGroupings);
     infix(.LeftBracket, expr.parseArrayInitExpr);

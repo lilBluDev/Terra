@@ -7,6 +7,7 @@ const LUs = @import("./core/parser/lookUps.zig");
 const TLUs = @import("./core/parser/typesLus.zig");
 const ntv = @import("./core/helper/nodeTreeVisualizer.zig");
 const ast = @import("./core/parser/AST.zig");
+const fsH = @import("./core/helper/fsHelper.zig");
 
 pub const TerraC = struct {
     aloc: std.mem.Allocator,
@@ -28,5 +29,11 @@ pub const TerraC = struct {
         const prgm = try parserInst.parse(tag);
         checker.checkProgram(prgm, self.aloc);
         return prgm;
+    }
+
+    pub fn parseFile(self: *const TerraC, path: []const u8, DBToken: bool) !*ast.Node {
+        const content = try fsH.readPath(self.aloc, path);
+        std.debug.print("running {s}\n\n", .{path});
+        return self.parseSingle(content, path, DBToken);
     }
 };

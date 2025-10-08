@@ -39,7 +39,7 @@ see more within the `docs` folder for syntax and other documentation!
 
 // imports
 import "std";
-import "std/println";
+import "std:println";
 import (
     "./foo/bar/test.tr", // import all visible exports from that file
     "./foo/bar/" // looks for "main.tr" file within that directory 

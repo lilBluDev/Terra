@@ -4,6 +4,8 @@ const ast = @import("../parser/AST.zig");
 pub fn VisualizeNode(n: *ast.Node, aloc: std.mem.Allocator, tier: usize) !void {
     printTier(tier);
 
+    // std.debug.print("{any}\n", .{n});
+
     switch (n.*) {
         .Program => |p| {
             std.debug.print("{s}\n", .{try n.fmt(aloc)});
@@ -79,10 +81,18 @@ pub fn VisualizeNode(n: *ast.Node, aloc: std.mem.Allocator, tier: usize) !void {
             std.debug.print("{s}\n", .{try n.fmt(aloc)});
             try VisualizeNode(p.n, aloc, tier + 1);
         },
+        .ImportStmt => |p| {
+            std.debug.print("{s}\n", .{try n.fmt(aloc)});
+            var first = false;
+            for (p.imports.items.items) |s| {
+                if (first) std.debug.print("\n", .{});
+                first = true;
+                try VisualizeNode(s, aloc, tier + 1);
+            }
+        },
 
         // Expressions
-        .Null => |p| {
-            _ = p;
+        .Null, .AnyError, .AnyType => {
             std.debug.print("{s}\n", .{try n.fmt(aloc)});
         },
         .AssignmentExpr => |p| {
@@ -96,7 +106,7 @@ pub fn VisualizeNode(n: *ast.Node, aloc: std.mem.Allocator, tier: usize) !void {
         },
         .Literal => |p| {
             _ = p;
-            std.debug.print("{s}\n", .{try n.fmt(aloc)});
+            std.debug.print("{s}", .{try n.fmt(aloc)});
         },
         .BinaryExpr => |p| {
             std.debug.print("{s}\n", .{try n.fmt(aloc)});
@@ -158,6 +168,15 @@ pub fn VisualizeNode(n: *ast.Node, aloc: std.mem.Allocator, tier: usize) !void {
         .ArraySymbol => |p| {
             std.debug.print("{s}\n", .{try n.fmt(aloc)});
             try VisualizeNode(p.sym, aloc, tier + 1);
+        },
+        .CanErr => |p| {
+            std.debug.print("{s}\n", .{try n.fmt(aloc)});
+            printTier(tier + 1);
+            std.debug.print("ErrType:\n", .{});
+            try VisualizeNode(p.errType, aloc, tier + 2);
+            printTier(tier + 1);
+            std.debug.print("ExpectencyType:\n", .{});
+            try VisualizeNode(p.sym, aloc, tier + 2);
         },
     }
     // printTier(tier + 1);
