@@ -2,4 +2,6 @@
 .zig-cache/
 managed_context/
 test_suite_context/
+test_suite_analysis/
 zig_out/
+.gitignore/
